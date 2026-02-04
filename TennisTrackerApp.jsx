@@ -51,11 +51,11 @@ const TennisTrackerApp = () => {
   const loadMatches = () => {
     // This would fetch from Firebase Firestore
     const mockMatches = [
-      { id: '1', opponent: 'John Smith', myScore: '6', opponentScore: '4', date: '2024-02-01', courtType: 'hard', result: 'win' },
-      { id: '2', opponent: 'Mike Johnson', myScore: '4', opponentScore: '6', date: '2024-02-02', courtType: 'clay', result: 'loss' },
-      { id: '3', opponent: 'John Smith', myScore: '6', opponentScore: '3', date: '2024-02-03', courtType: 'hard', result: 'win' },
-      { id: '4', opponent: 'Sarah Williams', myScore: '7', opponentScore: '5', date: '2024-02-04', courtType: 'grass', result: 'win' },
-      { id: '5', opponent: 'Mike Johnson', myScore: '6', opponentScore: '7', date: '2024-02-05', courtType: 'hard', result: 'loss' },
+      { id: '1', opponent: 'John Smith', myScore: '6', opponentScore: '4', date: '2026-02-01', courtType: 'hard', result: 'win' },
+      { id: '2', opponent: 'Mike Johnson', myScore: '4', opponentScore: '6', date: '2026-02-02', courtType: 'clay', result: 'loss' },
+      { id: '3', opponent: 'John Smith', myScore: '6', opponentScore: '3', date: '2026-02-03', courtType: 'hard', result: 'win' },
+      { id: '4', opponent: 'Sarah Williams', myScore: '7', opponentScore: '5', date: '2026-02-04', courtType: 'clay', result: 'win' },
+      { id: '5', opponent: 'Mike Johnson', myScore: '6', opponentScore: '7', date: '2026-02-05', courtType: 'hard', result: 'loss' },
     ];
     setMatches(mockMatches);
   };
@@ -234,7 +234,7 @@ const TennisTrackerApp = () => {
           <View>
             {/* Overall Stats */}
             <View style={styles.statsCard}>
-              <Text style={styles.cardTitle}>Overall Performance</Text>
+              <Text style={styles.cardTitle}>Overall Performance in 2026</Text>
               <View style={styles.statsRow}>
                 <View style={styles.statBox}>
                   <Text style={styles.statNumber}>{stats.wins}</Text>
@@ -247,6 +247,21 @@ const TennisTrackerApp = () => {
                 <View style={styles.statBox}>
                   <Text style={styles.statNumber}>{stats.winRate}%</Text>
                   <Text style={styles.statLabel}>Win Rate</Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Monthly Stats */}
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>This Month</Text>
+              <View style={styles.statsRow}>
+                <View style={styles.statBox}>
+                  <Text style={styles.statNumber}>{stats.monthlyWins}</Text>
+                  <Text style={styles.statLabel}>Wins</Text>
+                </View>
+                <View style={styles.statBox}>
+                  <Text style={styles.statNumber}>{stats.monthlyLosses}</Text>
+                  <Text style={styles.statLabel}>Losses</Text>
                 </View>
               </View>
             </View>
@@ -280,21 +295,6 @@ const TennisTrackerApp = () => {
                   </View>
                 </View>
               ))}
-            </View>
-
-            {/* Monthly Stats */}
-            <View style={styles.card}>
-              <Text style={styles.cardTitle}>This Month</Text>
-              <View style={styles.statsRow}>
-                <View style={styles.statBox}>
-                  <Text style={styles.statNumber}>{stats.monthlyWins}</Text>
-                  <Text style={styles.statLabel}>Wins</Text>
-                </View>
-                <View style={styles.statBox}>
-                  <Text style={styles.statNumber}>{stats.monthlyLosses}</Text>
-                  <Text style={styles.statLabel}>Losses</Text>
-                </View>
-              </View>
             </View>
 
             {/* Opponent Stats */}
@@ -380,7 +380,9 @@ const TennisTrackerApp = () => {
                 placeholder="My Score"
                 value={myScore}
                 onChangeText={setMyScore}
-                keyboardType="numeric"
+                keyboardType="number-pad"
+                returnKeyType="done"
+                blurOnSubmit={true}
               />
               <Text style={styles.scoreDivider}>-</Text>
               <TextInput
@@ -388,29 +390,46 @@ const TennisTrackerApp = () => {
                 placeholder="Opp Score"
                 value={opponentScore}
                 onChangeText={setOpponentScore}
-                keyboardType="numeric"
+                keyboardType="number-pad"
+                returnKeyType="done"
+                blurOnSubmit={true}
               />
             </View>
 
             <Text style={styles.label}>Court Type</Text>
             <View style={styles.buttonGroup}>
-              {['hard', 'clay', 'grass', 'indoor'].map((type) => (
-                <TouchableOpacity
-                  key={type}
-                  style={[
-                    styles.optionButton,
-                    courtType === type && styles.selectedOption
-                  ]}
-                  onPress={() => setCourtType(type)}
-                >
-                  <Text style={[
-                    styles.optionText,
-                    courtType === type && styles.selectedOptionText
-                  ]}>
-                    {type.charAt(0).toUpperCase() + type.slice(1)}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+              <TouchableOpacity
+                style={[
+                  styles.optionButton,
+                  styles.clayButton,
+                  courtType === 'clay' && styles.selectedClayButton
+                ]}
+                onPress={() => setCourtType('clay')}
+              >
+                <Text style={[
+                  styles.optionText,
+                  styles.courtTypeText,
+                  courtType === 'clay' && styles.selectedClayText
+                ]}>
+                  Clay
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.optionButton,
+                  styles.hardButton,
+                  courtType === 'hard' && styles.selectedHardButton
+                ]}
+                onPress={() => setCourtType('hard')}
+              >
+                <Text style={[
+                  styles.optionText,
+                  styles.courtTypeText,
+                  courtType === 'hard' && styles.selectedHardText
+                ]}>
+                  Hard
+                </Text>
+              </TouchableOpacity>
             </View>
 
             <Text style={styles.label}>Result</Text>
@@ -837,6 +856,33 @@ const styles = StyleSheet.create({
   addButtonText: {
     color: '#fff',
     fontSize: 16,
+    fontWeight: 'bold',
+  },
+  courtTypeText: {
+    color: '#fff',
+  },
+  clayButton: {
+    backgroundColor: '#C04000',
+    borderColor: '#C04000',
+  },
+  selectedClayButton: {
+    backgroundColor: '#8B2F00',
+    borderColor: '#8B2F00',
+  },
+  selectedClayText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  hardButton: {
+    backgroundColor: '#0085C7',
+    borderColor: '#0085C7',
+  },
+  selectedHardButton: {
+    backgroundColor: '#005A8C',
+    borderColor: '#005A8C',
+  },
+  selectedHardText: {
+    color: '#fff',
     fontWeight: 'bold',
   },
 });
