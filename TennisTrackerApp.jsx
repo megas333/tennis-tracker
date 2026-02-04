@@ -29,10 +29,16 @@ const TennisTrackerApp = () => {
   // Add Match State
   const [showAddMatch, setShowAddMatch] = useState(false);
   const [opponentName, setOpponentName] = useState('');
-  const [myScore, setMyScore] = useState('');
-  const [opponentScore, setOpponentScore] = useState('');
+  const [matchFormat, setMatchFormat] = useState('one-set'); // 'one-set', 'two-sets', 'three-sets'
+  const [set1MyScore, setSet1MyScore] = useState('');
+  const [set1OppScore, setSet1OppScore] = useState('');
+  const [set2MyScore, setSet2MyScore] = useState('');
+  const [set2OppScore, setSet2OppScore] = useState('');
+  const [set3MyScore, setSet3MyScore] = useState('');
+  const [set3OppScore, setSet3OppScore] = useState('');
   const [courtType, setCourtType] = useState('hard');
-  const [matchDate, setMatchDate] = useState(new Date().toISOString().split('T')[0]);
+  const [matchDate, setMatchDate] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [result, setResult] = useState('win');
 
   // Mock authentication (replace with Firebase)
@@ -51,27 +57,47 @@ const TennisTrackerApp = () => {
   const loadMatches = () => {
     // This would fetch from Firebase Firestore
     const mockMatches = [
-      { id: '1', opponent: 'John Smith', myScore: '6', opponentScore: '4', date: '2026-02-01', courtType: 'hard', result: 'win' },
-      { id: '2', opponent: 'Mike Johnson', myScore: '4', opponentScore: '6', date: '2026-02-02', courtType: 'clay', result: 'loss' },
-      { id: '3', opponent: 'John Smith', myScore: '6', opponentScore: '3', date: '2026-02-03', courtType: 'hard', result: 'win' },
-      { id: '4', opponent: 'Sarah Williams', myScore: '7', opponentScore: '5', date: '2026-02-04', courtType: 'clay', result: 'win' },
-      { id: '5', opponent: 'Mike Johnson', myScore: '6', opponentScore: '7', date: '2026-02-05', courtType: 'hard', result: 'loss' },
+      { id: '1', opponent: 'John Smith', myScore: '6-4', matchFormat: 'one-set', date: '2026-02-01', courtType: 'hard', result: 'win' },
+      { id: '2', opponent: 'Mike Johnson', myScore: '4-6, 6-7', matchFormat: 'two-sets', date: '2026-02-02', courtType: 'clay', result: 'loss' },
+      { id: '3', opponent: 'John Smith', myScore: '6-3, 7-5', matchFormat: 'two-sets', date: '2026-02-03', courtType: 'hard', result: 'win' },
+      { id: '4', opponent: 'Sarah Williams', myScore: '7-5', matchFormat: 'one-set', date: '2026-02-04', courtType: 'clay', result: 'win' },
+      { id: '5', opponent: 'Mike Johnson', myScore: '6-7, 6-4, 10-8', matchFormat: 'three-sets', date: '2026-02-05', courtType: 'hard', result: 'win' },
     ];
     setMatches(mockMatches);
   };
 
   const addMatch = () => {
-    if (!opponentName || !myScore || !opponentScore) {
-      Alert.alert('Error', 'Please fill in all match details');
+    if (!opponentName || !set1MyScore || !set1OppScore) {
+      Alert.alert('Error', 'Please fill in at least the first set score');
       return;
+    }
+
+    if (matchFormat === 'two-sets' && (!set2MyScore || !set2OppScore)) {
+      Alert.alert('Error', 'Please fill in both set scores for a two-set match');
+      return;
+    }
+
+    if (matchFormat === 'three-sets' && (!set2MyScore || !set2OppScore || !set3MyScore || !set3OppScore)) {
+      Alert.alert('Error', 'Please fill in all three set scores');
+      return;
+    }
+
+    // Build score string
+    let scoreString = `${set1MyScore}-${set1OppScore}`;
+    if (matchFormat === 'two-sets' || matchFormat === 'three-sets') {
+      scoreString += `, ${set2MyScore}-${set2OppScore}`;
+    }
+    if (matchFormat === 'three-sets') {
+      scoreString += `, ${set3MyScore}-${set3OppScore}`;
     }
 
     const newMatch = {
       id: Date.now().toString(),
       opponent: opponentName,
-      myScore,
-      opponentScore,
-      date: matchDate,
+      myScore: scoreString,
+      opponentScore: '', // Not used anymore, kept for compatibility
+      matchFormat,
+      date: matchDate.toISOString().split('T')[0],
       courtType,
       result,
     };
@@ -81,10 +107,15 @@ const TennisTrackerApp = () => {
 
     // Reset form
     setOpponentName('');
-    setMyScore('');
-    setOpponentScore('');
+    setMatchFormat('one-set');
+    setSet1MyScore('');
+    setSet1OppScore('');
+    setSet2MyScore('');
+    setSet2OppScore('');
+    setSet3MyScore('');
+    setSet3OppScore('');
     setCourtType('hard');
-    setMatchDate(new Date().toISOString().split('T')[0]);
+    setMatchDate(new Date());
     setResult('win');
     setShowAddMatch(false);
 
@@ -283,7 +314,7 @@ const TennisTrackerApp = () => {
                 <View key={match.id} style={styles.matchItem}>
                   <Text style={styles.matchOpponent}>{match.opponent}</Text>
                   <Text style={styles.matchScore}>
-                    {match.myScore} - {match.opponentScore}
+                    {match.myScore}
                   </Text>
                   <View style={[
                     styles.resultBadge,
@@ -331,7 +362,7 @@ const TennisTrackerApp = () => {
                 </View>
                 <View style={styles.historyDetails}>
                   <Text style={styles.historyScore}>
-                    {match.myScore} - {match.opponentScore}
+                    {match.myScore}
                   </Text>
                   <Text style={styles.historyCourt}>{match.courtType}</Text>
                   <View style={[
@@ -374,12 +405,59 @@ const TennisTrackerApp = () => {
               onChangeText={setOpponentName}
             />
 
+            <Text style={styles.label}>Match Format</Text>
+            <View style={styles.buttonGroup}>
+              <TouchableOpacity
+                style={[
+                  styles.optionButton,
+                  matchFormat === 'one-set' && styles.selectedOption
+                ]}
+                onPress={() => setMatchFormat('one-set')}
+              >
+                <Text style={[
+                  styles.optionText,
+                  matchFormat === 'one-set' && styles.selectedOptionText
+                ]}>
+                  One Set
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.optionButton,
+                  matchFormat === 'two-sets' && styles.selectedOption
+                ]}
+                onPress={() => setMatchFormat('two-sets')}
+              >
+                <Text style={[
+                  styles.optionText,
+                  matchFormat === 'two-sets' && styles.selectedOptionText
+                ]}>
+                  Two Sets
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.optionButton,
+                  matchFormat === 'three-sets' && styles.selectedOption
+                ]}
+                onPress={() => setMatchFormat('three-sets')}
+              >
+                <Text style={[
+                  styles.optionText,
+                  matchFormat === 'three-sets' && styles.selectedOptionText
+                ]}>
+                  Three Sets
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            <Text style={styles.label}>Set 1 Score</Text>
             <View style={styles.scoreRow}>
               <TextInput
                 style={[styles.input, styles.scoreInput]}
-                placeholder="My Score"
-                value={myScore}
-                onChangeText={setMyScore}
+                placeholder="My"
+                value={set1MyScore}
+                onChangeText={setSet1MyScore}
                 keyboardType="number-pad"
                 returnKeyType="done"
                 blurOnSubmit={true}
@@ -387,14 +465,68 @@ const TennisTrackerApp = () => {
               <Text style={styles.scoreDivider}>-</Text>
               <TextInput
                 style={[styles.input, styles.scoreInput]}
-                placeholder="Opp Score"
-                value={opponentScore}
-                onChangeText={setOpponentScore}
+                placeholder="Opp"
+                value={set1OppScore}
+                onChangeText={setSet1OppScore}
                 keyboardType="number-pad"
                 returnKeyType="done"
                 blurOnSubmit={true}
               />
             </View>
+
+            {(matchFormat === 'two-sets' || matchFormat === 'three-sets') && (
+              <>
+                <Text style={styles.label}>Set 2 Score</Text>
+                <View style={styles.scoreRow}>
+                  <TextInput
+                    style={[styles.input, styles.scoreInput]}
+                    placeholder="My"
+                    value={set2MyScore}
+                    onChangeText={setSet2MyScore}
+                    keyboardType="number-pad"
+                    returnKeyType="done"
+                    blurOnSubmit={true}
+                  />
+                  <Text style={styles.scoreDivider}>-</Text>
+                  <TextInput
+                    style={[styles.input, styles.scoreInput]}
+                    placeholder="Opp"
+                    value={set2OppScore}
+                    onChangeText={setSet2OppScore}
+                    keyboardType="number-pad"
+                    returnKeyType="done"
+                    blurOnSubmit={true}
+                  />
+                </View>
+              </>
+            )}
+
+            {matchFormat === 'three-sets' && (
+              <>
+                <Text style={styles.label}>Set 3 Score (Super Tiebreak)</Text>
+                <View style={styles.scoreRow}>
+                  <TextInput
+                    style={[styles.input, styles.scoreInput]}
+                    placeholder="My"
+                    value={set3MyScore}
+                    onChangeText={setSet3MyScore}
+                    keyboardType="number-pad"
+                    returnKeyType="done"
+                    blurOnSubmit={true}
+                  />
+                  <Text style={styles.scoreDivider}>-</Text>
+                  <TextInput
+                    style={[styles.input, styles.scoreInput]}
+                    placeholder="Opp"
+                    value={set3OppScore}
+                    onChangeText={setSet3OppScore}
+                    keyboardType="number-pad"
+                    returnKeyType="done"
+                    blurOnSubmit={true}
+                  />
+                </View>
+              </>
+            )}
 
             <Text style={styles.label}>Court Type</Text>
             <View style={styles.buttonGroup}>
@@ -464,12 +596,19 @@ const TennisTrackerApp = () => {
               </TouchableOpacity>
             </View>
 
-            <TextInput
-              style={styles.input}
-              placeholder="Date (YYYY-MM-DD)"
-              value={matchDate}
-              onChangeText={setMatchDate}
-            />
+            <Text style={styles.label}>Match Date</Text>
+            <TouchableOpacity
+              style={styles.dateButton}
+              onPress={() => setShowDatePicker(true)}
+            >
+              <Text style={styles.dateButtonText}>
+                {matchDate.toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                })}
+              </Text>
+            </TouchableOpacity>
 
             <View style={styles.modalButtons}>
               <TouchableOpacity
@@ -486,6 +625,67 @@ const TennisTrackerApp = () => {
                 <Text style={styles.addButtonText}>Add Match</Text>
               </TouchableOpacity>
             </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Date Picker Modal */}
+      <Modal
+        visible={showDatePicker}
+        animationType="slide"
+        transparent={true}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.datePickerModal}>
+            <Text style={styles.modalTitle}>Select Date</Text>
+
+            <TextInput
+              style={styles.input}
+              placeholder="YYYY-MM-DD"
+              value={matchDate.toISOString().split('T')[0]}
+              onChangeText={(text) => {
+                const newDate = new Date(text);
+                if (!isNaN(newDate.getTime())) {
+                  setMatchDate(newDate);
+                }
+              }}
+            />
+
+            <View style={styles.quickDateButtons}>
+              <TouchableOpacity
+                style={styles.quickDateButton}
+                onPress={() => setMatchDate(new Date())}
+              >
+                <Text style={styles.quickDateText}>Today</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.quickDateButton}
+                onPress={() => {
+                  const yesterday = new Date();
+                  yesterday.setDate(yesterday.getDate() - 1);
+                  setMatchDate(yesterday);
+                }}
+              >
+                <Text style={styles.quickDateText}>Yesterday</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.quickDateButton}
+                onPress={() => {
+                  const twoDaysAgo = new Date();
+                  twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+                  setMatchDate(twoDaysAgo);
+                }}
+              >
+                <Text style={styles.quickDateText}>2 Days Ago</Text>
+              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity
+              style={[styles.button, styles.addButton]}
+              onPress={() => setShowDatePicker(false)}
+            >
+              <Text style={styles.addButtonText}>Done</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -884,6 +1084,43 @@ const styles = StyleSheet.create({
   selectedHardText: {
     color: '#fff',
     fontWeight: 'bold',
+  },
+  dateButton: {
+    backgroundColor: '#f5f5f5',
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+  },
+  dateButtonText: {
+    fontSize: 16,
+    color: '#333',
+  },
+  datePickerModal: {
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 25,
+    width: '90%',
+    maxWidth: 400,
+  },
+  quickDateButtons: {
+    flexDirection: 'row',
+    gap: 10,
+    marginBottom: 20,
+    marginTop: 10,
+  },
+  quickDateButton: {
+    flex: 1,
+    backgroundColor: '#e8f5e9',
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  quickDateText: {
+    color: '#2e7d32',
+    fontSize: 14,
+    fontWeight: '600',
   },
 });
 
