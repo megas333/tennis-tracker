@@ -46,14 +46,25 @@ const TennisTrackerApp = () => {
   // Score validation errors
   const [scoreErrors, setScoreErrors] = useState({});
 
+  // Success toast state
+  const [showSuccessToast, setShowSuccessToast] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+
+  // Refs for auto-focus between score inputs
+  const set1OppRef = useRef(null);
+  const set2MyRef = useRef(null);
+  const set2OppRef = useRef(null);
+  const set3MyRef = useRef(null);
+  const set3OppRef = useRef(null);
+
   // Get max score based on match format and set number
   const getMaxScore = (format, setNumber) => {
     if (format === 'one-set') return 9;
-    if (format === 'two-sets') return 6;
+    if (format === 'two-sets') return 7; // Allow 7-6 tiebreak
     if (format === 'three-sets') {
-      return setNumber === 3 ? 10 : 6;
+      return setNumber === 3 ? 10 : 7; // Allow 7-6 tiebreak for sets 1-2
     }
-    return 6;
+    return 7;
   };
 
   // Validate score input
@@ -223,7 +234,12 @@ const TennisTrackerApp = () => {
     setScoreErrors({});
     setShowAddMatch(false);
 
-    Alert.alert('Success', `Match added - ${result === 'win' ? 'Victory! 🎉' : 'Better luck next time!'}`);
+    // Show auto-dismissing success toast
+    setSuccessMessage(result === 'win' ? 'Match added - Victory!' : 'Match added - Better luck next time!');
+    setShowSuccessToast(true);
+    setTimeout(() => {
+      setShowSuccessToast(false);
+    }, 2000);
   };
 
   // Calculate statistics
@@ -763,14 +779,18 @@ const TennisTrackerApp = () => {
                 </TouchableOpacity>
               </View>
 
-              <Text style={styles.label}>Set 1 Score (max {getMaxScore(matchFormat, 1)})</Text>
+              <Text style={styles.label}>Set 1 Score</Text>
               <View style={styles.scoreRow}>
                 <View style={styles.scoreInputContainer}>
                   <TextInput
                     style={[styles.input, styles.scoreInput, scoreErrors.set1My && styles.inputError]}
                     placeholder="My"
                     value={set1MyScore}
-                    onChangeText={(text) => setSet1MyScore(validateScore(text, matchFormat, 1, 'set1My'))}
+                    onChangeText={(text) => {
+                      const validated = validateScore(text, matchFormat, 1, 'set1My');
+                      setSet1MyScore(validated);
+                      if (validated.length === 1) set1OppRef.current?.focus();
+                    }}
                     keyboardType="number-pad"
                     returnKeyType="done"
                     blurOnSubmit={true}
@@ -781,10 +801,17 @@ const TennisTrackerApp = () => {
                 <Text style={styles.scoreDivider}>-</Text>
                 <View style={styles.scoreInputContainer}>
                   <TextInput
+                    ref={set1OppRef}
                     style={[styles.input, styles.scoreInput, scoreErrors.set1Opp && styles.inputError]}
                     placeholder="Opp"
                     value={set1OppScore}
-                    onChangeText={(text) => setSet1OppScore(validateScore(text, matchFormat, 1, 'set1Opp'))}
+                    onChangeText={(text) => {
+                      const validated = validateScore(text, matchFormat, 1, 'set1Opp');
+                      setSet1OppScore(validated);
+                      if (validated.length === 1 && (matchFormat === 'two-sets' || matchFormat === 'three-sets')) {
+                        set2MyRef.current?.focus();
+                      }
+                    }}
                     keyboardType="number-pad"
                     returnKeyType="done"
                     blurOnSubmit={true}
@@ -796,14 +823,19 @@ const TennisTrackerApp = () => {
 
               {(matchFormat === 'two-sets' || matchFormat === 'three-sets') && (
                 <>
-                  <Text style={styles.label}>Set 2 Score (max {getMaxScore(matchFormat, 2)})</Text>
+                  <Text style={styles.label}>Set 2 Score</Text>
                   <View style={styles.scoreRow}>
                     <View style={styles.scoreInputContainer}>
                       <TextInput
+                        ref={set2MyRef}
                         style={[styles.input, styles.scoreInput, scoreErrors.set2My && styles.inputError]}
                         placeholder="My"
                         value={set2MyScore}
-                        onChangeText={(text) => setSet2MyScore(validateScore(text, matchFormat, 2, 'set2My'))}
+                        onChangeText={(text) => {
+                          const validated = validateScore(text, matchFormat, 2, 'set2My');
+                          setSet2MyScore(validated);
+                          if (validated.length === 1) set2OppRef.current?.focus();
+                        }}
                         keyboardType="number-pad"
                         returnKeyType="done"
                         blurOnSubmit={true}
@@ -814,10 +846,17 @@ const TennisTrackerApp = () => {
                     <Text style={styles.scoreDivider}>-</Text>
                     <View style={styles.scoreInputContainer}>
                       <TextInput
+                        ref={set2OppRef}
                         style={[styles.input, styles.scoreInput, scoreErrors.set2Opp && styles.inputError]}
                         placeholder="Opp"
                         value={set2OppScore}
-                        onChangeText={(text) => setSet2OppScore(validateScore(text, matchFormat, 2, 'set2Opp'))}
+                        onChangeText={(text) => {
+                          const validated = validateScore(text, matchFormat, 2, 'set2Opp');
+                          setSet2OppScore(validated);
+                          if (validated.length === 1 && matchFormat === 'three-sets') {
+                            set3MyRef.current?.focus();
+                          }
+                        }}
                         keyboardType="number-pad"
                         returnKeyType="done"
                         blurOnSubmit={true}
@@ -831,14 +870,19 @@ const TennisTrackerApp = () => {
 
               {matchFormat === 'three-sets' && (
                 <>
-                  <Text style={styles.label}>Set 3 - Super Tiebreak (max {getMaxScore(matchFormat, 3)})</Text>
+                  <Text style={styles.label}>Set 3 - Super Tiebreak</Text>
                   <View style={styles.scoreRow}>
                     <View style={styles.scoreInputContainer}>
                       <TextInput
+                        ref={set3MyRef}
                         style={[styles.input, styles.scoreInput, scoreErrors.set3My && styles.inputError]}
                         placeholder="My"
                         value={set3MyScore}
-                        onChangeText={(text) => setSet3MyScore(validateScore(text, matchFormat, 3, 'set3My'))}
+                        onChangeText={(text) => {
+                          const validated = validateScore(text, matchFormat, 3, 'set3My');
+                          setSet3MyScore(validated);
+                          if (validated.length >= 1) set3OppRef.current?.focus();
+                        }}
                         keyboardType="number-pad"
                         returnKeyType="done"
                         blurOnSubmit={true}
@@ -849,6 +893,7 @@ const TennisTrackerApp = () => {
                     <Text style={styles.scoreDivider}>-</Text>
                     <View style={styles.scoreInputContainer}>
                       <TextInput
+                        ref={set3OppRef}
                         style={[styles.input, styles.scoreInput, scoreErrors.set3Opp && styles.inputError]}
                         placeholder="Opp"
                         value={set3OppScore}
@@ -930,6 +975,13 @@ const TennisTrackerApp = () => {
           </ScrollView>
         </View>
       </Modal>
+
+      {/* Success Toast */}
+      {showSuccessToast && (
+        <View style={styles.toast}>
+          <Text style={styles.toastText}>{successMessage}</Text>
+        </View>
+      )}
     </SafeAreaView>
   );
 };
@@ -1464,6 +1516,27 @@ const styles = StyleSheet.create({
     color: '#2e7d32',
     fontSize: 14,
     fontWeight: '600',
+  },
+  // Toast styles
+  toast: {
+    position: 'absolute',
+    bottom: 120,
+    left: 20,
+    right: 20,
+    backgroundColor: '#2e7d32',
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 8,
+  },
+  toastText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 
