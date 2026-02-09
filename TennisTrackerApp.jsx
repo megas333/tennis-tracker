@@ -280,32 +280,39 @@ const TennisTrackerApp = () => {
     };
   };
 
-  // Generate calendar days for date picker
-  const generateCalendarDays = () => {
-    const year = matchDate.getFullYear();
-    const month = matchDate.getMonth();
-    const firstDay = new Date(year, month, 1).getDay();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-    const days = [];
-
-    // Add empty slots for days before the first day
-    for (let i = 0; i < firstDay; i++) {
-      days.push({ day: '', empty: true });
-    }
-
-    // Add the days of the month
-    for (let i = 1; i <= daysInMonth; i++) {
-      days.push({ day: i, empty: false });
-    }
-
-    return days;
-  };
+  // Date picker state
+  const [selectedDay, setSelectedDay] = useState(matchDate.getDate());
+  const [selectedMonth, setSelectedMonth] = useState(matchDate.getMonth());
+  const [selectedYear, setSelectedYear] = useState(matchDate.getFullYear());
 
   const monthNames = [
     'January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'
   ];
+
+  const years = [2024, 2025, 2026];
+
+  const getDaysInMonth = (month, year) => {
+    return new Date(year, month + 1, 0).getDate();
+  };
+
+  const days = Array.from({ length: getDaysInMonth(selectedMonth, selectedYear) }, (_, i) => i + 1);
+
+  // Update matchDate when picker opens
+  const openDatePicker = () => {
+    setSelectedDay(matchDate.getDate());
+    setSelectedMonth(matchDate.getMonth());
+    setSelectedYear(matchDate.getFullYear());
+    setShowDatePicker(true);
+  };
+
+  // Apply selected date
+  const applyDate = () => {
+    const maxDay = getDaysInMonth(selectedMonth, selectedYear);
+    const day = Math.min(selectedDay, maxDay);
+    setMatchDate(new Date(selectedYear, selectedMonth, day));
+    setShowDatePicker(false);
+  };
 
   // Loading Screen
   if (isLoggingIn) {
@@ -345,6 +352,9 @@ const TennisTrackerApp = () => {
             onChangeText={setEmail}
             keyboardType="email-address"
             autoCapitalize="none"
+            autoCorrect={false}
+            spellCheck={false}
+            textContentType="oneTimeCode"
             returnKeyType="next"
           />
 
@@ -353,7 +363,11 @@ const TennisTrackerApp = () => {
             placeholder="Password"
             value={password}
             onChangeText={setPassword}
-            secureTextEntry
+            secureTextEntry={true}
+            autoCorrect={false}
+            autoCapitalize="none"
+            spellCheck={false}
+            textContentType="oneTimeCode"
             returnKeyType="done"
             onSubmitEditing={handleAuth}
           />
@@ -751,7 +765,7 @@ const TennisTrackerApp = () => {
               <Text style={styles.label}>Match Date</Text>
               <TouchableOpacity
                 style={styles.dateButton}
-                onPress={() => setShowDatePicker(true)}
+                onPress={openDatePicker}
               >
                 <Text style={styles.dateButtonText}>
                   {matchDate.toLocaleDateString('en-US', {
@@ -785,7 +799,7 @@ const TennisTrackerApp = () => {
         </View>
       </Modal>
 
-      {/* Custom Date Picker Modal */}
+      {/* Date Picker Modal with Sliders */}
       <Modal
         visible={showDatePicker}
         animationType="fade"
@@ -795,76 +809,99 @@ const TennisTrackerApp = () => {
           <View style={styles.datePickerModal}>
             <Text style={styles.modalTitle}>Select Date</Text>
 
-            {/* Month/Year Navigation */}
-            <View style={styles.calendarHeader}>
-              <TouchableOpacity
-                style={styles.calendarNavButton}
-                onPress={() => {
-                  const newDate = new Date(matchDate);
-                  newDate.setMonth(newDate.getMonth() - 1);
-                  setMatchDate(newDate);
-                }}
-              >
-                <Text style={styles.calendarNavText}>◀</Text>
-              </TouchableOpacity>
-
-              <Text style={styles.calendarMonthYear}>
-                {monthNames[matchDate.getMonth()]} {matchDate.getFullYear()}
-              </Text>
-
-              <TouchableOpacity
-                style={styles.calendarNavButton}
-                onPress={() => {
-                  const newDate = new Date(matchDate);
-                  newDate.setMonth(newDate.getMonth() + 1);
-                  setMatchDate(newDate);
-                }}
-              >
-                <Text style={styles.calendarNavText}>▶</Text>
-              </TouchableOpacity>
+            {/* Picker Labels */}
+            <View style={styles.pickerLabels}>
+              <Text style={styles.pickerLabel}>Day</Text>
+              <Text style={styles.pickerLabel}>Month</Text>
+              <Text style={styles.pickerLabel}>Year</Text>
             </View>
 
-            {/* Day Labels */}
-            <View style={styles.calendarDayLabels}>
-              {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                <Text key={day} style={styles.calendarDayLabel}>{day}</Text>
-              ))}
-            </View>
+            {/* Picker Columns */}
+            <View style={styles.pickerContainer}>
+              {/* Day Picker */}
+              <ScrollView style={styles.pickerColumn} showsVerticalScrollIndicator={false}>
+                {days.map((day) => (
+                  <TouchableOpacity
+                    key={day}
+                    style={[
+                      styles.pickerItem,
+                      selectedDay === day && styles.pickerItemSelected
+                    ]}
+                    onPress={() => setSelectedDay(day)}
+                  >
+                    <Text style={[
+                      styles.pickerItemText,
+                      selectedDay === day && styles.pickerItemTextSelected
+                    ]}>
+                      {day}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
 
-            {/* Calendar Days */}
-            <View style={styles.calendarGrid}>
-              {generateCalendarDays().map((item, index) => (
-                <TouchableOpacity
-                  key={index}
-                  style={[
-                    styles.calendarDay,
-                    item.empty && styles.calendarDayEmpty,
-                    item.day === matchDate.getDate() && !item.empty && styles.calendarDaySelected
-                  ]}
-                  onPress={() => {
-                    if (!item.empty) {
-                      const newDate = new Date(matchDate);
-                      newDate.setDate(item.day);
-                      setMatchDate(newDate);
-                    }
-                  }}
-                  disabled={item.empty}
-                >
-                  <Text style={[
-                    styles.calendarDayText,
-                    item.day === matchDate.getDate() && !item.empty && styles.calendarDayTextSelected
-                  ]}>
-                    {item.day}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+              {/* Month Picker */}
+              <ScrollView style={styles.pickerColumn} showsVerticalScrollIndicator={false}>
+                {monthNames.map((month, index) => (
+                  <TouchableOpacity
+                    key={month}
+                    style={[
+                      styles.pickerItem,
+                      selectedMonth === index && styles.pickerItemSelected
+                    ]}
+                    onPress={() => {
+                      setSelectedMonth(index);
+                      // Adjust day if needed
+                      const maxDay = getDaysInMonth(index, selectedYear);
+                      if (selectedDay > maxDay) setSelectedDay(maxDay);
+                    }}
+                  >
+                    <Text style={[
+                      styles.pickerItemText,
+                      selectedMonth === index && styles.pickerItemTextSelected
+                    ]}>
+                      {month.slice(0, 3)}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+
+              {/* Year Picker */}
+              <ScrollView style={styles.pickerColumn} showsVerticalScrollIndicator={false}>
+                {years.map((year) => (
+                  <TouchableOpacity
+                    key={year}
+                    style={[
+                      styles.pickerItem,
+                      selectedYear === year && styles.pickerItemSelected
+                    ]}
+                    onPress={() => {
+                      setSelectedYear(year);
+                      // Adjust day if needed
+                      const maxDay = getDaysInMonth(selectedMonth, year);
+                      if (selectedDay > maxDay) setSelectedDay(maxDay);
+                    }}
+                  >
+                    <Text style={[
+                      styles.pickerItemText,
+                      selectedYear === year && styles.pickerItemTextSelected
+                    ]}>
+                      {year}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
             </View>
 
             {/* Quick Date Buttons */}
             <View style={styles.quickDateButtons}>
               <TouchableOpacity
                 style={styles.quickDateButton}
-                onPress={() => setMatchDate(new Date())}
+                onPress={() => {
+                  const today = new Date();
+                  setSelectedDay(today.getDate());
+                  setSelectedMonth(today.getMonth());
+                  setSelectedYear(today.getFullYear());
+                }}
               >
                 <Text style={styles.quickDateText}>Today</Text>
               </TouchableOpacity>
@@ -873,7 +910,9 @@ const TennisTrackerApp = () => {
                 onPress={() => {
                   const yesterday = new Date();
                   yesterday.setDate(yesterday.getDate() - 1);
-                  setMatchDate(yesterday);
+                  setSelectedDay(yesterday.getDate());
+                  setSelectedMonth(yesterday.getMonth());
+                  setSelectedYear(yesterday.getFullYear());
                 }}
               >
                 <Text style={styles.quickDateText}>Yesterday</Text>
@@ -882,7 +921,7 @@ const TennisTrackerApp = () => {
 
             <TouchableOpacity
               style={[styles.button, styles.addButton, { marginTop: 15 }]}
-              onPress={() => setShowDatePicker(false)}
+              onPress={applyDate}
             >
               <Text style={styles.addButtonText}>Done</Text>
             </TouchableOpacity>
@@ -1359,68 +1398,48 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
   },
-  // Custom Calendar Styles
+  // Date Picker Slider Styles
   datePickerModal: {
     backgroundColor: '#fff',
     borderRadius: 20,
     padding: 20,
     marginHorizontal: 20,
   },
-  calendarHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  calendarNavButton: {
-    padding: 10,
-  },
-  calendarNavText: {
-    fontSize: 18,
-    color: '#2e7d32',
-    fontWeight: 'bold',
-  },
-  calendarMonthYear: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  calendarDayLabels: {
+  pickerLabels: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     marginBottom: 10,
   },
-  calendarDayLabel: {
-    width: 40,
+  pickerLabel: {
+    flex: 1,
     textAlign: 'center',
-    fontSize: 12,
-    color: '#999',
+    fontSize: 14,
     fontWeight: '600',
+    color: '#666',
   },
-  calendarGrid: {
+  pickerContainer: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'flex-start',
+    height: 200,
+    borderRadius: 12,
+    backgroundColor: '#f5f5f5',
+    overflow: 'hidden',
   },
-  calendarDay: {
-    width: '14.28%',
-    aspectRatio: 1,
-    justifyContent: 'center',
+  pickerColumn: {
+    flex: 1,
+  },
+  pickerItem: {
+    paddingVertical: 12,
     alignItems: 'center',
-    marginVertical: 2,
+    justifyContent: 'center',
   },
-  calendarDayEmpty: {
-    backgroundColor: 'transparent',
-  },
-  calendarDaySelected: {
+  pickerItemSelected: {
     backgroundColor: '#2e7d32',
-    borderRadius: 20,
   },
-  calendarDayText: {
+  pickerItemText: {
     fontSize: 16,
     color: '#333',
   },
-  calendarDayTextSelected: {
+  pickerItemTextSelected: {
     color: '#fff',
     fontWeight: 'bold',
   },
