@@ -124,10 +124,14 @@ const TennisTrackerApp = () => {
     setLoadingProgress(0);
     setLoadingText('Logging into your Tennis Universe');
 
-    // Animate progress
+    // Smooth animation - 1.2 seconds total
     let progress = 0;
+    const totalDuration = 1200;
+    const intervalTime = 30;
+    const increment = 100 / (totalDuration / intervalTime);
+
     const interval = setInterval(() => {
-      progress += Math.random() * 15 + 5;
+      progress += increment;
       if (progress >= 100) {
         progress = 100;
         clearInterval(interval);
@@ -139,11 +143,11 @@ const TennisTrackerApp = () => {
           setCurrentScreen('home');
           setIsLoggingIn(false);
           loadMatches();
-        }, 800);
+        }, 500);
       } else {
         setLoadingProgress(Math.floor(progress));
       }
-    }, 200);
+    }, intervalTime);
   };
 
   // Mock data loading
@@ -799,7 +803,7 @@ const TennisTrackerApp = () => {
         </View>
       </Modal>
 
-      {/* Date Picker Modal with Sliders */}
+      {/* Simple Date Picker Modal */}
       <Modal
         visible={showDatePicker}
         animationType="fade"
@@ -809,87 +813,88 @@ const TennisTrackerApp = () => {
           <View style={styles.datePickerModal}>
             <Text style={styles.modalTitle}>Select Date</Text>
 
-            {/* Picker Labels */}
-            <View style={styles.pickerLabels}>
-              <Text style={styles.pickerLabel}>Day</Text>
-              <Text style={styles.pickerLabel}>Month</Text>
-              <Text style={styles.pickerLabel}>Year</Text>
+            {/* Day Selector */}
+            <View style={styles.dateRow}>
+              <Text style={styles.dateLabel}>Day</Text>
+              <View style={styles.dateSelector}>
+                <TouchableOpacity
+                  style={styles.arrowButton}
+                  onPress={() => {
+                    const maxDay = getDaysInMonth(selectedMonth, selectedYear);
+                    setSelectedDay(selectedDay > 1 ? selectedDay - 1 : maxDay);
+                  }}
+                >
+                  <Text style={styles.arrowText}>◀</Text>
+                </TouchableOpacity>
+                <Text style={styles.dateValue}>{selectedDay}</Text>
+                <TouchableOpacity
+                  style={styles.arrowButton}
+                  onPress={() => {
+                    const maxDay = getDaysInMonth(selectedMonth, selectedYear);
+                    setSelectedDay(selectedDay < maxDay ? selectedDay + 1 : 1);
+                  }}
+                >
+                  <Text style={styles.arrowText}>▶</Text>
+                </TouchableOpacity>
+              </View>
             </View>
 
-            {/* Picker Columns */}
-            <View style={styles.pickerContainer}>
-              {/* Day Picker */}
-              <ScrollView style={styles.pickerColumn} showsVerticalScrollIndicator={false}>
-                {days.map((day) => (
-                  <TouchableOpacity
-                    key={day}
-                    style={[
-                      styles.pickerItem,
-                      selectedDay === day && styles.pickerItemSelected
-                    ]}
-                    onPress={() => setSelectedDay(day)}
-                  >
-                    <Text style={[
-                      styles.pickerItemText,
-                      selectedDay === day && styles.pickerItemTextSelected
-                    ]}>
-                      {day}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
+            {/* Month Selector */}
+            <View style={styles.dateRow}>
+              <Text style={styles.dateLabel}>Month</Text>
+              <View style={styles.dateSelector}>
+                <TouchableOpacity
+                  style={styles.arrowButton}
+                  onPress={() => {
+                    const newMonth = selectedMonth > 0 ? selectedMonth - 1 : 11;
+                    setSelectedMonth(newMonth);
+                    const maxDay = getDaysInMonth(newMonth, selectedYear);
+                    if (selectedDay > maxDay) setSelectedDay(maxDay);
+                  }}
+                >
+                  <Text style={styles.arrowText}>◀</Text>
+                </TouchableOpacity>
+                <Text style={styles.dateValue}>{monthNames[selectedMonth]}</Text>
+                <TouchableOpacity
+                  style={styles.arrowButton}
+                  onPress={() => {
+                    const newMonth = selectedMonth < 11 ? selectedMonth + 1 : 0;
+                    setSelectedMonth(newMonth);
+                    const maxDay = getDaysInMonth(newMonth, selectedYear);
+                    if (selectedDay > maxDay) setSelectedDay(maxDay);
+                  }}
+                >
+                  <Text style={styles.arrowText}>▶</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
 
-              {/* Month Picker */}
-              <ScrollView style={styles.pickerColumn} showsVerticalScrollIndicator={false}>
-                {monthNames.map((month, index) => (
-                  <TouchableOpacity
-                    key={month}
-                    style={[
-                      styles.pickerItem,
-                      selectedMonth === index && styles.pickerItemSelected
-                    ]}
-                    onPress={() => {
-                      setSelectedMonth(index);
-                      // Adjust day if needed
-                      const maxDay = getDaysInMonth(index, selectedYear);
-                      if (selectedDay > maxDay) setSelectedDay(maxDay);
-                    }}
-                  >
-                    <Text style={[
-                      styles.pickerItemText,
-                      selectedMonth === index && styles.pickerItemTextSelected
-                    ]}>
-                      {month.slice(0, 3)}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-
-              {/* Year Picker */}
-              <ScrollView style={styles.pickerColumn} showsVerticalScrollIndicator={false}>
-                {years.map((year) => (
-                  <TouchableOpacity
-                    key={year}
-                    style={[
-                      styles.pickerItem,
-                      selectedYear === year && styles.pickerItemSelected
-                    ]}
-                    onPress={() => {
-                      setSelectedYear(year);
-                      // Adjust day if needed
-                      const maxDay = getDaysInMonth(selectedMonth, year);
-                      if (selectedDay > maxDay) setSelectedDay(maxDay);
-                    }}
-                  >
-                    <Text style={[
-                      styles.pickerItemText,
-                      selectedYear === year && styles.pickerItemTextSelected
-                    ]}>
-                      {year}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
+            {/* Year Selector */}
+            <View style={styles.dateRow}>
+              <Text style={styles.dateLabel}>Year</Text>
+              <View style={styles.dateSelector}>
+                <TouchableOpacity
+                  style={styles.arrowButton}
+                  onPress={() => {
+                    const idx = years.indexOf(selectedYear);
+                    const newIdx = idx > 0 ? idx - 1 : years.length - 1;
+                    setSelectedYear(years[newIdx]);
+                  }}
+                >
+                  <Text style={styles.arrowText}>◀</Text>
+                </TouchableOpacity>
+                <Text style={styles.dateValue}>{selectedYear}</Text>
+                <TouchableOpacity
+                  style={styles.arrowButton}
+                  onPress={() => {
+                    const idx = years.indexOf(selectedYear);
+                    const newIdx = idx < years.length - 1 ? idx + 1 : 0;
+                    setSelectedYear(years[newIdx]);
+                  }}
+                >
+                  <Text style={styles.arrowText}>▶</Text>
+                </TouchableOpacity>
+              </View>
             </View>
 
             {/* Quick Date Buttons */}
@@ -1398,50 +1403,53 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
   },
-  // Date Picker Slider Styles
+  // Simple Date Picker Styles
   datePickerModal: {
     backgroundColor: '#fff',
     borderRadius: 20,
-    padding: 20,
+    padding: 25,
     marginHorizontal: 20,
   },
-  pickerLabels: {
+  dateRow: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginBottom: 10,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 15,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
   },
-  pickerLabel: {
-    flex: 1,
-    textAlign: 'center',
-    fontSize: 14,
+  dateLabel: {
+    fontSize: 16,
     fontWeight: '600',
     color: '#666',
+    width: 60,
   },
-  pickerContainer: {
+  dateSelector: {
     flexDirection: 'row',
-    height: 200,
-    borderRadius: 12,
-    backgroundColor: '#f5f5f5',
-    overflow: 'hidden',
-  },
-  pickerColumn: {
-    flex: 1,
-  },
-  pickerItem: {
-    paddingVertical: 12,
     alignItems: 'center',
+    flex: 1,
     justifyContent: 'center',
   },
-  pickerItemSelected: {
-    backgroundColor: '#2e7d32',
+  arrowButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#e8f5e9',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  pickerItemText: {
-    fontSize: 16,
-    color: '#333',
-  },
-  pickerItemTextSelected: {
-    color: '#fff',
+  arrowText: {
+    fontSize: 18,
+    color: '#2e7d32',
     fontWeight: 'bold',
+  },
+  dateValue: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333',
+    minWidth: 100,
+    textAlign: 'center',
   },
   quickDateButtons: {
     flexDirection: 'row',
