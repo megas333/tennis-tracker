@@ -565,6 +565,132 @@ const TennisTrackerApp = () => {
         <View style={styles.modalOverlay}>
           <ScrollView contentContainerStyle={styles.modalScrollContent}>
             <View style={styles.modalContent}>
+
+              {/* Date Picker View */}
+              {showDatePicker ? (
+                <>
+                  <Text style={styles.modalTitle}>Select Date</Text>
+
+                  {/* Day Selector */}
+                  <View style={styles.dateRow}>
+                    <Text style={styles.dateLabel}>Day</Text>
+                    <View style={styles.dateSelector}>
+                      <TouchableOpacity
+                        style={styles.arrowButton}
+                        onPress={() => {
+                          const maxDay = getDaysInMonth(selectedMonth, selectedYear);
+                          setSelectedDay(selectedDay > 1 ? selectedDay - 1 : maxDay);
+                        }}
+                      >
+                        <Text style={styles.arrowText}>◀</Text>
+                      </TouchableOpacity>
+                      <Text style={styles.dateValue}>{selectedDay}</Text>
+                      <TouchableOpacity
+                        style={styles.arrowButton}
+                        onPress={() => {
+                          const maxDay = getDaysInMonth(selectedMonth, selectedYear);
+                          setSelectedDay(selectedDay < maxDay ? selectedDay + 1 : 1);
+                        }}
+                      >
+                        <Text style={styles.arrowText}>▶</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+
+                  {/* Month Selector */}
+                  <View style={styles.dateRow}>
+                    <Text style={styles.dateLabel}>Month</Text>
+                    <View style={styles.dateSelector}>
+                      <TouchableOpacity
+                        style={styles.arrowButton}
+                        onPress={() => {
+                          const newMonth = selectedMonth > 0 ? selectedMonth - 1 : 11;
+                          setSelectedMonth(newMonth);
+                          const maxDay = getDaysInMonth(newMonth, selectedYear);
+                          if (selectedDay > maxDay) setSelectedDay(maxDay);
+                        }}
+                      >
+                        <Text style={styles.arrowText}>◀</Text>
+                      </TouchableOpacity>
+                      <Text style={styles.dateValue}>{monthNames[selectedMonth]}</Text>
+                      <TouchableOpacity
+                        style={styles.arrowButton}
+                        onPress={() => {
+                          const newMonth = selectedMonth < 11 ? selectedMonth + 1 : 0;
+                          setSelectedMonth(newMonth);
+                          const maxDay = getDaysInMonth(newMonth, selectedYear);
+                          if (selectedDay > maxDay) setSelectedDay(maxDay);
+                        }}
+                      >
+                        <Text style={styles.arrowText}>▶</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+
+                  {/* Year Selector */}
+                  <View style={styles.dateRow}>
+                    <Text style={styles.dateLabel}>Year</Text>
+                    <View style={styles.dateSelector}>
+                      <TouchableOpacity
+                        style={styles.arrowButton}
+                        onPress={() => {
+                          const idx = years.indexOf(selectedYear);
+                          const newIdx = idx > 0 ? idx - 1 : years.length - 1;
+                          setSelectedYear(years[newIdx]);
+                        }}
+                      >
+                        <Text style={styles.arrowText}>◀</Text>
+                      </TouchableOpacity>
+                      <Text style={styles.dateValue}>{selectedYear}</Text>
+                      <TouchableOpacity
+                        style={styles.arrowButton}
+                        onPress={() => {
+                          const idx = years.indexOf(selectedYear);
+                          const newIdx = idx < years.length - 1 ? idx + 1 : 0;
+                          setSelectedYear(years[newIdx]);
+                        }}
+                      >
+                        <Text style={styles.arrowText}>▶</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+
+                  {/* Quick Date Buttons */}
+                  <View style={styles.quickDateButtons}>
+                    <TouchableOpacity
+                      style={styles.quickDateButton}
+                      onPress={() => {
+                        const today = new Date();
+                        setSelectedDay(today.getDate());
+                        setSelectedMonth(today.getMonth());
+                        setSelectedYear(today.getFullYear());
+                      }}
+                    >
+                      <Text style={styles.quickDateText}>Today</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.quickDateButton}
+                      onPress={() => {
+                        const yesterday = new Date();
+                        yesterday.setDate(yesterday.getDate() - 1);
+                        setSelectedDay(yesterday.getDate());
+                        setSelectedMonth(yesterday.getMonth());
+                        setSelectedYear(yesterday.getFullYear());
+                      }}
+                    >
+                      <Text style={styles.quickDateText}>Yesterday</Text>
+                    </TouchableOpacity>
+                  </View>
+
+                  <TouchableOpacity
+                    style={[styles.button, styles.addButton, { marginTop: 20 }]}
+                    onPress={applyDate}
+                  >
+                    <Text style={styles.addButtonText}>Done</Text>
+                  </TouchableOpacity>
+                </>
+              ) : (
+              <>
               <Text style={styles.modalTitle}>Add Match</Text>
 
               <TextInput
@@ -798,139 +924,10 @@ const TennisTrackerApp = () => {
                   <Text style={styles.addButtonText}>Add Match</Text>
                 </TouchableOpacity>
               </View>
+              </>
+              )}
             </View>
           </ScrollView>
-        </View>
-      </Modal>
-
-      {/* Simple Date Picker Modal */}
-      <Modal
-        visible={showDatePicker}
-        animationType="fade"
-        transparent={true}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.datePickerModal}>
-            <Text style={styles.modalTitle}>Select Date</Text>
-
-            {/* Day Selector */}
-            <View style={styles.dateRow}>
-              <Text style={styles.dateLabel}>Day</Text>
-              <View style={styles.dateSelector}>
-                <TouchableOpacity
-                  style={styles.arrowButton}
-                  onPress={() => {
-                    const maxDay = getDaysInMonth(selectedMonth, selectedYear);
-                    setSelectedDay(selectedDay > 1 ? selectedDay - 1 : maxDay);
-                  }}
-                >
-                  <Text style={styles.arrowText}>◀</Text>
-                </TouchableOpacity>
-                <Text style={styles.dateValue}>{selectedDay}</Text>
-                <TouchableOpacity
-                  style={styles.arrowButton}
-                  onPress={() => {
-                    const maxDay = getDaysInMonth(selectedMonth, selectedYear);
-                    setSelectedDay(selectedDay < maxDay ? selectedDay + 1 : 1);
-                  }}
-                >
-                  <Text style={styles.arrowText}>▶</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            {/* Month Selector */}
-            <View style={styles.dateRow}>
-              <Text style={styles.dateLabel}>Month</Text>
-              <View style={styles.dateSelector}>
-                <TouchableOpacity
-                  style={styles.arrowButton}
-                  onPress={() => {
-                    const newMonth = selectedMonth > 0 ? selectedMonth - 1 : 11;
-                    setSelectedMonth(newMonth);
-                    const maxDay = getDaysInMonth(newMonth, selectedYear);
-                    if (selectedDay > maxDay) setSelectedDay(maxDay);
-                  }}
-                >
-                  <Text style={styles.arrowText}>◀</Text>
-                </TouchableOpacity>
-                <Text style={styles.dateValue}>{monthNames[selectedMonth]}</Text>
-                <TouchableOpacity
-                  style={styles.arrowButton}
-                  onPress={() => {
-                    const newMonth = selectedMonth < 11 ? selectedMonth + 1 : 0;
-                    setSelectedMonth(newMonth);
-                    const maxDay = getDaysInMonth(newMonth, selectedYear);
-                    if (selectedDay > maxDay) setSelectedDay(maxDay);
-                  }}
-                >
-                  <Text style={styles.arrowText}>▶</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            {/* Year Selector */}
-            <View style={styles.dateRow}>
-              <Text style={styles.dateLabel}>Year</Text>
-              <View style={styles.dateSelector}>
-                <TouchableOpacity
-                  style={styles.arrowButton}
-                  onPress={() => {
-                    const idx = years.indexOf(selectedYear);
-                    const newIdx = idx > 0 ? idx - 1 : years.length - 1;
-                    setSelectedYear(years[newIdx]);
-                  }}
-                >
-                  <Text style={styles.arrowText}>◀</Text>
-                </TouchableOpacity>
-                <Text style={styles.dateValue}>{selectedYear}</Text>
-                <TouchableOpacity
-                  style={styles.arrowButton}
-                  onPress={() => {
-                    const idx = years.indexOf(selectedYear);
-                    const newIdx = idx < years.length - 1 ? idx + 1 : 0;
-                    setSelectedYear(years[newIdx]);
-                  }}
-                >
-                  <Text style={styles.arrowText}>▶</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            {/* Quick Date Buttons */}
-            <View style={styles.quickDateButtons}>
-              <TouchableOpacity
-                style={styles.quickDateButton}
-                onPress={() => {
-                  const today = new Date();
-                  setSelectedDay(today.getDate());
-                  setSelectedMonth(today.getMonth());
-                  setSelectedYear(today.getFullYear());
-                }}
-              >
-                <Text style={styles.quickDateText}>Today</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.quickDateButton}
-                onPress={() => {
-                  const yesterday = new Date();
-                  yesterday.setDate(yesterday.getDate() - 1);
-                  setSelectedDay(yesterday.getDate());
-                  setSelectedMonth(yesterday.getMonth());
-                  setSelectedYear(yesterday.getFullYear());
-                }}
-              >
-                <Text style={styles.quickDateText}>Yesterday</Text>
-              </TouchableOpacity>
-            </View>
-
-            <TouchableOpacity
-              style={[styles.button, styles.addButton, { marginTop: 15 }]}
-              onPress={applyDate}
-            >
-              <Text style={styles.addButtonText}>Done</Text>
-            </TouchableOpacity>
-          </View>
         </View>
       </Modal>
     </SafeAreaView>
