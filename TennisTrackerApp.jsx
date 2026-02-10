@@ -42,7 +42,7 @@ const TennisTrackerApp = () => {
 
   // Settings State
   const [showSettings, setShowSettings] = useState(false);
-  const [settingsScreen, setSettingsScreen] = useState('main'); // main, profile, notifications
+  const [settingsScreen, setSettingsScreen] = useState('main'); // main, profile, notifications, version
 
   // Notification Settings
   const [dailyReminderEnabled, setDailyReminderEnabled] = useState(false);
@@ -688,6 +688,7 @@ const TennisTrackerApp = () => {
             {settingsScreen === 'main' && 'Settings'}
             {settingsScreen === 'profile' && 'Profile'}
             {settingsScreen === 'notifications' && 'Notifications'}
+            {settingsScreen === 'version' && 'What\'s New'}
           </Text>
           <View style={{ width: 60 }} />
         </View>
@@ -734,13 +735,17 @@ const TennisTrackerApp = () => {
 
               <View style={styles.settingsSection}>
                 <Text style={styles.settingsSectionTitle}>About</Text>
-                <View style={styles.settingsItem}>
+                <TouchableOpacity
+                  style={styles.settingsItem}
+                  onPress={() => setSettingsScreen('version')}
+                >
                   <Text style={styles.settingsItemIcon}>📱</Text>
                   <View style={styles.settingsItemContent}>
                     <Text style={styles.settingsItemTitle}>App Version</Text>
                     <Text style={styles.settingsItemSubtitle}>{APP_VERSION}</Text>
                   </View>
-                </View>
+                  <Text style={styles.settingsItemArrow}>›</Text>
+                </TouchableOpacity>
               </View>
 
               <TouchableOpacity
@@ -849,14 +854,14 @@ const TennisTrackerApp = () => {
                       <View style={styles.timeSelector}>
                         <TouchableOpacity
                           style={styles.timeArrowButton}
-                          onPress={() => setReminderHour(reminderHour > 0 ? reminderHour - 1 : 23)}
+                          onPress={() => setReminderHour(reminderHour < 23 ? reminderHour + 1 : 0)}
                         >
                           <Text style={styles.timeArrowText}>▲</Text>
                         </TouchableOpacity>
                         <Text style={styles.timeValue}>{reminderHour.toString().padStart(2, '0')}</Text>
                         <TouchableOpacity
                           style={styles.timeArrowButton}
-                          onPress={() => setReminderHour(reminderHour < 23 ? reminderHour + 1 : 0)}
+                          onPress={() => setReminderHour(reminderHour > 0 ? reminderHour - 1 : 23)}
                         >
                           <Text style={styles.timeArrowText}>▼</Text>
                         </TouchableOpacity>
@@ -870,14 +875,14 @@ const TennisTrackerApp = () => {
                       <View style={styles.timeSelector}>
                         <TouchableOpacity
                           style={styles.timeArrowButton}
-                          onPress={() => setReminderMinute(reminderMinute > 0 ? reminderMinute - 5 : 55)}
+                          onPress={() => setReminderMinute(reminderMinute < 55 ? reminderMinute + 5 : 0)}
                         >
                           <Text style={styles.timeArrowText}>▲</Text>
                         </TouchableOpacity>
                         <Text style={styles.timeValue}>{reminderMinute.toString().padStart(2, '0')}</Text>
                         <TouchableOpacity
                           style={styles.timeArrowButton}
-                          onPress={() => setReminderMinute(reminderMinute < 55 ? reminderMinute + 5 : 0)}
+                          onPress={() => setReminderMinute(reminderMinute > 0 ? reminderMinute - 5 : 55)}
                         >
                           <Text style={styles.timeArrowText}>▼</Text>
                         </TouchableOpacity>
@@ -893,6 +898,74 @@ const TennisTrackerApp = () => {
                   </Text>
                 </>
               )}
+            </View>
+          )}
+
+          {/* Version Info Screen */}
+          {settingsScreen === 'version' && (
+            <View style={styles.versionInfo}>
+              <View style={styles.versionHeader}>
+                <Text style={styles.versionNumber}>Version {APP_VERSION}</Text>
+                <Text style={styles.versionDate}>February 2026</Text>
+              </View>
+
+              <Text style={styles.versionSectionTitle}>Features</Text>
+
+              <View style={styles.featureItem}>
+                <Text style={styles.featureIcon}>🎾</Text>
+                <View style={styles.featureContent}>
+                  <Text style={styles.featureTitle}>Match Tracking</Text>
+                  <Text style={styles.featureDescription}>Log matches with opponent name, score, court type, and date</Text>
+                </View>
+              </View>
+
+              <View style={styles.featureItem}>
+                <Text style={styles.featureIcon}>📊</Text>
+                <View style={styles.featureContent}>
+                  <Text style={styles.featureTitle}>Statistics Dashboard</Text>
+                  <Text style={styles.featureDescription}>View win/loss record, win rate, streaks, and monthly performance</Text>
+                </View>
+              </View>
+
+              <View style={styles.featureItem}>
+                <Text style={styles.featureIcon}>👥</Text>
+                <View style={styles.featureContent}>
+                  <Text style={styles.featureTitle}>Opponent Analysis</Text>
+                  <Text style={styles.featureDescription}>Track your record against each opponent</Text>
+                </View>
+              </View>
+
+              <View style={styles.featureItem}>
+                <Text style={styles.featureIcon}>🏆</Text>
+                <View style={styles.featureContent}>
+                  <Text style={styles.featureTitle}>Match Formats</Text>
+                  <Text style={styles.featureDescription}>Support for one set, two sets, and three sets with super tiebreak</Text>
+                </View>
+              </View>
+
+              <View style={styles.featureItem}>
+                <Text style={styles.featureIcon}>🔔</Text>
+                <View style={styles.featureContent}>
+                  <Text style={styles.featureTitle}>Daily Reminders</Text>
+                  <Text style={styles.featureDescription}>Set a daily reminder to log your matches</Text>
+                </View>
+              </View>
+
+              <View style={styles.featureItem}>
+                <Text style={styles.featureIcon}>🎸</Text>
+                <View style={styles.featureContent}>
+                  <Text style={styles.featureTitle}>String Reminder</Text>
+                  <Text style={styles.featureDescription}>Get notified after 4 matches to check your string tension</Text>
+                </View>
+              </View>
+
+              <View style={styles.featureItem}>
+                <Text style={styles.featureIcon}>👤</Text>
+                <View style={styles.featureContent}>
+                  <Text style={styles.featureTitle}>Player Profile</Text>
+                  <Text style={styles.featureDescription}>Store your name, age, main hand, and racket info</Text>
+                </View>
+              </View>
             </View>
           )}
         </ScrollView>
@@ -2294,6 +2367,61 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  // Version Info Styles
+  versionInfo: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 20,
+  },
+  versionHeader: {
+    alignItems: 'center',
+    marginBottom: 25,
+    paddingBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  versionNumber: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#2e7d32',
+  },
+  versionDate: {
+    fontSize: 14,
+    color: '#999',
+    marginTop: 5,
+  },
+  versionSectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 15,
+  },
+  featureItem: {
+    flexDirection: 'row',
+    marginBottom: 16,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f5f5f5',
+  },
+  featureIcon: {
+    fontSize: 24,
+    marginRight: 15,
+    width: 35,
+  },
+  featureContent: {
+    flex: 1,
+  },
+  featureTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 4,
+  },
+  featureDescription: {
+    fontSize: 14,
+    color: '#666',
+    lineHeight: 20,
   },
 });
 
