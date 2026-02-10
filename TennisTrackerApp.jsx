@@ -11,7 +11,10 @@ import {
   Alert,
   Animated,
   Keyboard,
+  Switch,
 } from 'react-native';
+
+const APP_VERSION = '1.0.0';
 
 const TennisTrackerApp = () => {
   const [currentScreen, setCurrentScreen] = useState('login');
@@ -22,12 +25,34 @@ const TennisTrackerApp = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isRegister, setIsRegister] = useState(false);
+  const [registerStep, setRegisterStep] = useState(1); // 1 = email/password, 2 = profile info
+
+  // User Profile State
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [age, setAge] = useState('');
+  const [mainHand, setMainHand] = useState('right');
+  const [racket, setRacket] = useState('');
 
   // Loading Animation State
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [loadingText, setLoadingText] = useState('Logging into your Tennis Universe');
   const progressAnim = useRef(new Animated.Value(0)).current;
+
+  // Settings State
+  const [showSettings, setShowSettings] = useState(false);
+  const [settingsScreen, setSettingsScreen] = useState('main'); // main, profile, notifications
+
+  // Notification Settings
+  const [dailyReminderEnabled, setDailyReminderEnabled] = useState(false);
+  const [reminderHour, setReminderHour] = useState(20); // 8 PM default
+  const [reminderMinute, setReminderMinute] = useState(0);
+
+  // String replacement notification
+  const [userAddedMatchCount, setUserAddedMatchCount] = useState(0);
+  const [showStringNotification, setShowStringNotification] = useState(false);
+  const [stringNotificationShown, setStringNotificationShown] = useState(false);
 
   // Add Match State
   const [showAddMatch, setShowAddMatch] = useState(false);
@@ -123,19 +148,41 @@ const TennisTrackerApp = () => {
     return mySetsWon > oppSetsWon ? 'win' : 'loss';
   };
 
-  // Handle login with animation
-  const handleAuth = () => {
+  // Handle registration step 1 (email/password)
+  const handleRegisterStep1 = () => {
     if (!email || !password) {
-      Alert.alert('Error', 'Please fill in all fields');
+      Alert.alert('Error', 'Please fill in email and password');
+      return;
+    }
+    if (password.length < 6) {
+      Alert.alert('Error', 'Password must be at least 6 characters');
+      return;
+    }
+    Keyboard.dismiss();
+    setRegisterStep(2);
+  };
+
+  // Handle registration step 2 (profile info)
+  const handleRegisterStep2 = () => {
+    if (!firstName.trim() || !lastName.trim()) {
+      Alert.alert('Error', 'Please enter your first and last name');
+      return;
+    }
+    if (!age || parseInt(age) < 5 || parseInt(age) > 100) {
+      Alert.alert('Error', 'Please enter a valid age (5-100)');
+      return;
+    }
+    if (!racket.trim()) {
+      Alert.alert('Error', 'Please enter your tennis racket');
       return;
     }
 
+    // Complete registration
     Keyboard.dismiss();
     setIsLoggingIn(true);
     setLoadingProgress(0);
-    setLoadingText('Logging into your Tennis Universe');
+    setLoadingText('Creating your Tennis Universe');
 
-    // Smooth animation - 1.2 seconds total
     let progress = 0;
     const totalDuration = 1200;
     const intervalTime = 30;
@@ -150,7 +197,62 @@ const TennisTrackerApp = () => {
         setLoadingText('Success!');
 
         setTimeout(() => {
-          setUser({ email, uid: 'mock-uid' });
+          setUser({
+            email,
+            uid: 'mock-uid',
+            firstName,
+            lastName,
+            age: parseInt(age),
+            mainHand,
+            racket,
+          });
+          setCurrentScreen('home');
+          setIsLoggingIn(false);
+          setRegisterStep(1);
+          loadMatches();
+        }, 500);
+      } else {
+        setLoadingProgress(Math.floor(progress));
+      }
+    }, intervalTime);
+  };
+
+  // Handle login with animation
+  const handleLogin = () => {
+    if (!email || !password) {
+      Alert.alert('Error', 'Please fill in all fields');
+      return;
+    }
+
+    Keyboard.dismiss();
+    setIsLoggingIn(true);
+    setLoadingProgress(0);
+    setLoadingText('Logging into your Tennis Universe');
+
+    let progress = 0;
+    const totalDuration = 1200;
+    const intervalTime = 30;
+    const increment = 100 / (totalDuration / intervalTime);
+
+    const interval = setInterval(() => {
+      progress += increment;
+      if (progress >= 100) {
+        progress = 100;
+        clearInterval(interval);
+        setLoadingProgress(100);
+        setLoadingText('Success!');
+
+        setTimeout(() => {
+          // Mock user with profile data
+          setUser({
+            email,
+            uid: 'mock-uid',
+            firstName: 'Tennis',
+            lastName: 'Player',
+            age: 30,
+            mainHand: 'right',
+            racket: 'Wilson Pro Staff 97',
+          });
           setCurrentScreen('home');
           setIsLoggingIn(false);
           loadMatches();
@@ -220,6 +322,10 @@ const TennisTrackerApp = () => {
 
     setMatches([newMatch, ...matches]);
 
+    // Track user-added matches for string notification
+    const newCount = userAddedMatchCount + 1;
+    setUserAddedMatchCount(newCount);
+
     // Reset form
     setOpponentName('');
     setMatchFormat('one-set');
@@ -239,6 +345,12 @@ const TennisTrackerApp = () => {
     setShowSuccessToast(true);
     setTimeout(() => {
       setShowSuccessToast(false);
+
+      // Show string notification after 4 matches (only once)
+      if (newCount === 4 && !stringNotificationShown) {
+        setShowStringNotification(true);
+        setStringNotificationShown(true);
+      }
     }, 2000);
   };
 
@@ -316,8 +428,6 @@ const TennisTrackerApp = () => {
     return new Date(year, month + 1, 0).getDate();
   };
 
-  const days = Array.from({ length: getDaysInMonth(selectedMonth, selectedYear) }, (_, i) => i + 1);
-
   // Update matchDate when picker opens
   const openDatePicker = () => {
     setSelectedDay(matchDate.getDate());
@@ -332,6 +442,56 @@ const TennisTrackerApp = () => {
     const day = Math.min(selectedDay, maxDay);
     setMatchDate(new Date(selectedYear, selectedMonth, day));
     setShowDatePicker(false);
+  };
+
+  // Handle logout
+  const handleLogout = () => {
+    setUser(null);
+    setEmail('');
+    setPassword('');
+    setFirstName('');
+    setLastName('');
+    setAge('');
+    setMainHand('right');
+    setRacket('');
+    setMatches([]);
+    setUserAddedMatchCount(0);
+    setStringNotificationShown(false);
+    setShowSettings(false);
+    setSettingsScreen('main');
+    setCurrentScreen('login');
+  };
+
+  // Update user profile
+  const updateProfile = () => {
+    if (!firstName.trim() || !lastName.trim()) {
+      Alert.alert('Error', 'Please enter your first and last name');
+      return;
+    }
+    if (!age || parseInt(age) < 5 || parseInt(age) > 100) {
+      Alert.alert('Error', 'Please enter a valid age (5-100)');
+      return;
+    }
+
+    setUser(prev => ({
+      ...prev,
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+      age: parseInt(age),
+      mainHand,
+      racket: racket.trim(),
+    }));
+
+    Alert.alert('Success', 'Profile updated!');
+    setSettingsScreen('main');
+  };
+
+  // Format time for display
+  const formatTime = (hour, minute) => {
+    const period = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour % 12 || 12;
+    const displayMinute = minute.toString().padStart(2, '0');
+    return `${displayHour}:${displayMinute} ${period}`;
   };
 
   // Loading Screen
@@ -357,6 +517,93 @@ const TennisTrackerApp = () => {
 
   // Login/Register Screen
   if (!user) {
+    // Registration Step 2 - Profile Info
+    if (isRegister && registerStep === 2) {
+      return (
+        <SafeAreaView style={styles.container}>
+          <ScrollView contentContainerStyle={styles.authScrollContainer}>
+            <View style={styles.authContainer}>
+              <Text style={styles.title}>🎾 Tennis Tracker</Text>
+              <Text style={styles.subtitle}>Complete your profile</Text>
+
+              <TextInput
+                style={styles.input}
+                placeholder="First Name"
+                value={firstName}
+                onChangeText={setFirstName}
+                autoCapitalize="words"
+                returnKeyType="next"
+              />
+
+              <TextInput
+                style={styles.input}
+                placeholder="Last Name"
+                value={lastName}
+                onChangeText={setLastName}
+                autoCapitalize="words"
+                returnKeyType="next"
+              />
+
+              <TextInput
+                style={styles.input}
+                placeholder="Age"
+                value={age}
+                onChangeText={setAge}
+                keyboardType="number-pad"
+                maxLength={3}
+                returnKeyType="next"
+              />
+
+              <Text style={styles.label}>Main Hand</Text>
+              <View style={styles.handButtonGroup}>
+                <TouchableOpacity
+                  style={[
+                    styles.handButton,
+                    mainHand === 'left' && styles.selectedHandButton
+                  ]}
+                  onPress={() => setMainHand('left')}
+                >
+                  <Text style={[
+                    styles.handButtonText,
+                    mainHand === 'left' && styles.selectedHandButtonText
+                  ]}>Left</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.handButton,
+                    mainHand === 'right' && styles.selectedHandButton
+                  ]}
+                  onPress={() => setMainHand('right')}
+                >
+                  <Text style={[
+                    styles.handButtonText,
+                    mainHand === 'right' && styles.selectedHandButtonText
+                  ]}>Right</Text>
+                </TouchableOpacity>
+              </View>
+
+              <TextInput
+                style={styles.input}
+                placeholder="Tennis Racket (e.g., Wilson Pro Staff 97)"
+                value={racket}
+                onChangeText={setRacket}
+                returnKeyType="done"
+              />
+
+              <TouchableOpacity style={styles.primaryButton} onPress={handleRegisterStep2}>
+                <Text style={styles.primaryButtonText}>Complete Registration →</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={() => setRegisterStep(1)}>
+                <Text style={styles.linkText}>← Back</Text>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
+        </SafeAreaView>
+      );
+    }
+
+    // Login / Registration Step 1
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.authContainer}>
@@ -389,16 +636,22 @@ const TennisTrackerApp = () => {
             spellCheck={false}
             textContentType="oneTimeCode"
             returnKeyType="done"
-            onSubmitEditing={handleAuth}
+            onSubmitEditing={isRegister ? handleRegisterStep1 : handleLogin}
           />
 
-          <TouchableOpacity style={styles.primaryButton} onPress={handleAuth}>
+          <TouchableOpacity
+            style={styles.primaryButton}
+            onPress={isRegister ? handleRegisterStep1 : handleLogin}
+          >
             <Text style={styles.primaryButtonText}>
-              {isRegister ? 'Register' : 'Login'} →
+              {isRegister ? 'Next →' : 'Login →'}
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => setIsRegister(!isRegister)}>
+          <TouchableOpacity onPress={() => {
+            setIsRegister(!isRegister);
+            setRegisterStep(1);
+          }}>
             <Text style={styles.linkText}>
               {isRegister ? 'Already have an account? Login' : "Don't have an account? Register"}
             </Text>
@@ -410,13 +663,250 @@ const TennisTrackerApp = () => {
 
   const stats = calculateStats();
 
+  // Settings Modal
+  const renderSettings = () => (
+    <Modal
+      visible={showSettings}
+      animationType="slide"
+      transparent={false}
+    >
+      <SafeAreaView style={styles.settingsContainer}>
+        {/* Settings Header */}
+        <View style={styles.settingsHeader}>
+          <TouchableOpacity onPress={() => {
+            if (settingsScreen === 'main') {
+              setShowSettings(false);
+            } else {
+              setSettingsScreen('main');
+            }
+          }}>
+            <Text style={styles.settingsBackText}>
+              {settingsScreen === 'main' ? '✕ Close' : '← Back'}
+            </Text>
+          </TouchableOpacity>
+          <Text style={styles.settingsTitle}>
+            {settingsScreen === 'main' && 'Settings'}
+            {settingsScreen === 'profile' && 'Profile'}
+            {settingsScreen === 'notifications' && 'Notifications'}
+          </Text>
+          <View style={{ width: 60 }} />
+        </View>
+
+        <ScrollView style={styles.settingsContent}>
+          {/* Main Settings Screen */}
+          {settingsScreen === 'main' && (
+            <>
+              <TouchableOpacity
+                style={styles.settingsItem}
+                onPress={() => {
+                  // Load current user data into form
+                  setFirstName(user.firstName || '');
+                  setLastName(user.lastName || '');
+                  setAge(user.age?.toString() || '');
+                  setMainHand(user.mainHand || 'right');
+                  setRacket(user.racket || '');
+                  setSettingsScreen('profile');
+                }}
+              >
+                <Text style={styles.settingsItemIcon}>👤</Text>
+                <View style={styles.settingsItemContent}>
+                  <Text style={styles.settingsItemTitle}>Profile</Text>
+                  <Text style={styles.settingsItemSubtitle}>
+                    {user.firstName} {user.lastName}
+                  </Text>
+                </View>
+                <Text style={styles.settingsItemArrow}>›</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.settingsItem}
+                onPress={() => setSettingsScreen('notifications')}
+              >
+                <Text style={styles.settingsItemIcon}>🔔</Text>
+                <View style={styles.settingsItemContent}>
+                  <Text style={styles.settingsItemTitle}>Notifications</Text>
+                  <Text style={styles.settingsItemSubtitle}>
+                    {dailyReminderEnabled ? `Daily at ${formatTime(reminderHour, reminderMinute)}` : 'Off'}
+                  </Text>
+                </View>
+                <Text style={styles.settingsItemArrow}>›</Text>
+              </TouchableOpacity>
+
+              <View style={styles.settingsSection}>
+                <Text style={styles.settingsSectionTitle}>About</Text>
+                <View style={styles.settingsItem}>
+                  <Text style={styles.settingsItemIcon}>📱</Text>
+                  <View style={styles.settingsItemContent}>
+                    <Text style={styles.settingsItemTitle}>App Version</Text>
+                    <Text style={styles.settingsItemSubtitle}>{APP_VERSION}</Text>
+                  </View>
+                </View>
+              </View>
+
+              <TouchableOpacity
+                style={styles.logoutButton}
+                onPress={handleLogout}
+              >
+                <Text style={styles.logoutButtonText}>Logout</Text>
+              </TouchableOpacity>
+            </>
+          )}
+
+          {/* Profile Screen */}
+          {settingsScreen === 'profile' && (
+            <View style={styles.profileForm}>
+              <Text style={styles.formLabel}>First Name</Text>
+              <TextInput
+                style={styles.input}
+                value={firstName}
+                onChangeText={setFirstName}
+                autoCapitalize="words"
+              />
+
+              <Text style={styles.formLabel}>Last Name</Text>
+              <TextInput
+                style={styles.input}
+                value={lastName}
+                onChangeText={setLastName}
+                autoCapitalize="words"
+              />
+
+              <Text style={styles.formLabel}>Age</Text>
+              <TextInput
+                style={styles.input}
+                value={age}
+                onChangeText={setAge}
+                keyboardType="number-pad"
+                maxLength={3}
+              />
+
+              <Text style={styles.formLabel}>Main Hand</Text>
+              <View style={styles.handButtonGroup}>
+                <TouchableOpacity
+                  style={[
+                    styles.handButton,
+                    mainHand === 'left' && styles.selectedHandButton
+                  ]}
+                  onPress={() => setMainHand('left')}
+                >
+                  <Text style={[
+                    styles.handButtonText,
+                    mainHand === 'left' && styles.selectedHandButtonText
+                  ]}>Left</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.handButton,
+                    mainHand === 'right' && styles.selectedHandButton
+                  ]}
+                  onPress={() => setMainHand('right')}
+                >
+                  <Text style={[
+                    styles.handButtonText,
+                    mainHand === 'right' && styles.selectedHandButtonText
+                  ]}>Right</Text>
+                </TouchableOpacity>
+              </View>
+
+              <Text style={styles.formLabel}>Tennis Racket</Text>
+              <TextInput
+                style={styles.input}
+                value={racket}
+                onChangeText={setRacket}
+                placeholder="e.g., Wilson Pro Staff 97"
+              />
+
+              <TouchableOpacity style={styles.saveButton} onPress={updateProfile}>
+                <Text style={styles.saveButtonText}>Save Changes</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
+          {/* Notifications Screen */}
+          {settingsScreen === 'notifications' && (
+            <View style={styles.notificationsForm}>
+              <View style={styles.notificationToggleRow}>
+                <View>
+                  <Text style={styles.notificationTitle}>Daily Reminder</Text>
+                  <Text style={styles.notificationSubtitle}>
+                    Get reminded to log your matches
+                  </Text>
+                </View>
+                <Switch
+                  value={dailyReminderEnabled}
+                  onValueChange={setDailyReminderEnabled}
+                  trackColor={{ false: '#e0e0e0', true: '#a5d6a7' }}
+                  thumbColor={dailyReminderEnabled ? '#2e7d32' : '#999'}
+                />
+              </View>
+
+              {dailyReminderEnabled && (
+                <>
+                  <Text style={styles.formLabel}>Reminder Time</Text>
+                  <View style={styles.timePickerRow}>
+                    <View style={styles.timePicker}>
+                      <Text style={styles.timePickerLabel}>Hour</Text>
+                      <View style={styles.timeSelector}>
+                        <TouchableOpacity
+                          style={styles.timeArrowButton}
+                          onPress={() => setReminderHour(reminderHour > 0 ? reminderHour - 1 : 23)}
+                        >
+                          <Text style={styles.timeArrowText}>▲</Text>
+                        </TouchableOpacity>
+                        <Text style={styles.timeValue}>{reminderHour.toString().padStart(2, '0')}</Text>
+                        <TouchableOpacity
+                          style={styles.timeArrowButton}
+                          onPress={() => setReminderHour(reminderHour < 23 ? reminderHour + 1 : 0)}
+                        >
+                          <Text style={styles.timeArrowText}>▼</Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+
+                    <Text style={styles.timeColon}>:</Text>
+
+                    <View style={styles.timePicker}>
+                      <Text style={styles.timePickerLabel}>Minute</Text>
+                      <View style={styles.timeSelector}>
+                        <TouchableOpacity
+                          style={styles.timeArrowButton}
+                          onPress={() => setReminderMinute(reminderMinute > 0 ? reminderMinute - 5 : 55)}
+                        >
+                          <Text style={styles.timeArrowText}>▲</Text>
+                        </TouchableOpacity>
+                        <Text style={styles.timeValue}>{reminderMinute.toString().padStart(2, '0')}</Text>
+                        <TouchableOpacity
+                          style={styles.timeArrowButton}
+                          onPress={() => setReminderMinute(reminderMinute < 55 ? reminderMinute + 5 : 0)}
+                        >
+                          <Text style={styles.timeArrowText}>▼</Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  </View>
+
+                  <Text style={styles.notificationPreview}>
+                    You'll receive a reminder at {formatTime(reminderHour, reminderMinute)} daily
+                  </Text>
+                  <Text style={styles.notificationNote}>
+                    "Did you play tennis today? Don't forget to log your match!"
+                  </Text>
+                </>
+              )}
+            </View>
+          )}
+        </ScrollView>
+      </SafeAreaView>
+    </Modal>
+  );
+
   // Main App
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>🎾 Tennis Tracker</Text>
-        <TouchableOpacity onPress={() => setUser(null)}>
-          <Text style={styles.logoutText}>Logout</Text>
+        <TouchableOpacity onPress={() => setShowSettings(true)}>
+          <Text style={styles.settingsIcon}>⚙️</Text>
         </TouchableOpacity>
       </View>
 
@@ -910,7 +1400,7 @@ const TennisTrackerApp = () => {
               )}
 
               <Text style={styles.label}>Court Type</Text>
-              <View style={styles.buttonGroup}>
+              <View style={styles.courtButtonGroup}>
                 <TouchableOpacity
                   style={[
                     styles.courtButton,
@@ -976,6 +1466,32 @@ const TennisTrackerApp = () => {
         </View>
       </Modal>
 
+      {/* String Replacement Notification Modal */}
+      <Modal
+        visible={showStringNotification}
+        animationType="fade"
+        transparent={true}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.stringNotificationModal}>
+            <Text style={styles.stringNotificationEmoji}>🎾</Text>
+            <Text style={styles.stringNotificationTitle}>Time for New Strings?</Text>
+            <Text style={styles.stringNotificationText}>
+              You've played 4 matches! Your strings may have lost tension and could affect your game. Consider getting them replaced for optimal performance.
+            </Text>
+            <TouchableOpacity
+              style={styles.stringNotificationButton}
+              onPress={() => setShowStringNotification(false)}
+            >
+              <Text style={styles.stringNotificationButtonText}>Got it!</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Settings Modal */}
+      {renderSettings()}
+
       {/* Success Toast */}
       {showSuccessToast && (
         <View style={styles.toast}>
@@ -1037,6 +1553,9 @@ const styles = StyleSheet.create({
     marginTop: 30,
   },
   // Auth Styles
+  authScrollContainer: {
+    flexGrow: 1,
+  },
   authContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -1065,6 +1584,47 @@ const styles = StyleSheet.create({
   inputError: {
     borderWidth: 2,
     borderColor: '#f44336',
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#666',
+    marginBottom: 8,
+    marginTop: 10,
+  },
+  formLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#666',
+    marginBottom: 8,
+    marginTop: 15,
+  },
+  handButtonGroup: {
+    flexDirection: 'row',
+    gap: 10,
+    marginBottom: 15,
+  },
+  handButton: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: '#e0e0e0',
+    backgroundColor: '#f5f5f5',
+    alignItems: 'center',
+  },
+  selectedHandButton: {
+    borderColor: '#2e7d32',
+    backgroundColor: '#e8f5e9',
+  },
+  handButtonText: {
+    fontSize: 16,
+    color: '#666',
+  },
+  selectedHandButtonText: {
+    color: '#2e7d32',
+    fontWeight: 'bold',
   },
   primaryButton: {
     backgroundColor: '#2e7d32',
@@ -1099,10 +1659,177 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
   },
-  logoutText: {
-    color: '#d32f2f',
-    fontSize: 14,
+  settingsIcon: {
+    fontSize: 24,
   },
+  // Settings Styles
+  settingsContainer: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
+  },
+  settingsHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+  },
+  settingsBackText: {
+    fontSize: 16,
+    color: '#2e7d32',
+  },
+  settingsTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  settingsContent: {
+    flex: 1,
+    padding: 20,
+  },
+  settingsItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 10,
+  },
+  settingsItemIcon: {
+    fontSize: 24,
+    marginRight: 15,
+  },
+  settingsItemContent: {
+    flex: 1,
+  },
+  settingsItemTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+  },
+  settingsItemSubtitle: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 2,
+  },
+  settingsItemArrow: {
+    fontSize: 24,
+    color: '#ccc',
+  },
+  settingsSection: {
+    marginTop: 20,
+  },
+  settingsSectionTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#666',
+    marginBottom: 10,
+    marginLeft: 5,
+  },
+  logoutButton: {
+    backgroundColor: '#ffebee',
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginTop: 30,
+  },
+  logoutButtonText: {
+    color: '#d32f2f',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  profileForm: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 12,
+  },
+  saveButton: {
+    backgroundColor: '#2e7d32',
+    padding: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  saveButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  // Notifications Settings
+  notificationsForm: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 12,
+  },
+  notificationToggleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  notificationTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+  },
+  notificationSubtitle: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 2,
+  },
+  timePickerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 10,
+    marginBottom: 20,
+  },
+  timePicker: {
+    alignItems: 'center',
+  },
+  timePickerLabel: {
+    fontSize: 12,
+    color: '#666',
+    marginBottom: 8,
+  },
+  timeSelector: {
+    alignItems: 'center',
+  },
+  timeArrowButton: {
+    padding: 10,
+  },
+  timeArrowText: {
+    fontSize: 18,
+    color: '#2e7d32',
+  },
+  timeValue: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#333',
+    minWidth: 60,
+    textAlign: 'center',
+  },
+  timeColon: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#333',
+    marginHorizontal: 10,
+  },
+  notificationPreview: {
+    fontSize: 14,
+    color: '#2e7d32',
+    textAlign: 'center',
+    marginTop: 10,
+  },
+  notificationNote: {
+    fontSize: 13,
+    color: '#666',
+    textAlign: 'center',
+    marginTop: 10,
+    fontStyle: 'italic',
+  },
+  // Tab Bar
   tabBar: {
     flexDirection: 'row',
     backgroundColor: '#fff',
@@ -1333,13 +2060,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     textAlign: 'center',
   },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#666',
-    marginBottom: 8,
-    marginTop: 10,
-  },
   scoreRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -1391,13 +2111,19 @@ const styles = StyleSheet.create({
     color: '#2e7d32',
     fontWeight: 'bold',
   },
-  // Court Type Buttons with green outline when selected
+  // Court Type Buttons - Full Width
+  courtButtonGroup: {
+    flexDirection: 'row',
+    gap: 10,
+    marginBottom: 15,
+  },
   courtButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 20,
+    flex: 1,
+    paddingVertical: 15,
     borderRadius: 8,
     borderWidth: 3,
     borderColor: 'transparent',
+    alignItems: 'center',
   },
   clayButton: {
     backgroundColor: '#C04000',
@@ -1410,7 +2136,7 @@ const styles = StyleSheet.create({
   },
   courtButtonText: {
     color: '#fff',
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: 'bold',
   },
   modalButtons: {
@@ -1452,13 +2178,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
   },
-  // Simple Date Picker Styles
-  datePickerModal: {
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    padding: 25,
-    marginHorizontal: 20,
-  },
+  // Date Picker Styles
   dateRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1516,6 +2236,43 @@ const styles = StyleSheet.create({
     color: '#2e7d32',
     fontSize: 14,
     fontWeight: '600',
+  },
+  // String Notification Modal
+  stringNotificationModal: {
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 30,
+    marginHorizontal: 20,
+    alignItems: 'center',
+  },
+  stringNotificationEmoji: {
+    fontSize: 60,
+    marginBottom: 20,
+  },
+  stringNotificationTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+  stringNotificationText: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+    lineHeight: 24,
+    marginBottom: 25,
+  },
+  stringNotificationButton: {
+    backgroundColor: '#2e7d32',
+    paddingVertical: 14,
+    paddingHorizontal: 40,
+    borderRadius: 10,
+  },
+  stringNotificationButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   // Toast styles
   toast: {
