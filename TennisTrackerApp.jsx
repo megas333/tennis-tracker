@@ -65,6 +65,7 @@ const TennisTrackerApp = () => {
   const [set3MyScore, setSet3MyScore] = useState('');
   const [set3OppScore, setSet3OppScore] = useState('');
   const [courtType, setCourtType] = useState('hard');
+  const [location, setLocation] = useState('');
   const [matchDate, setMatchDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
 
@@ -266,11 +267,11 @@ const TennisTrackerApp = () => {
   // Mock data loading
   const loadMatches = () => {
     const mockMatches = [
-      { id: '1', opponent: 'John Smith', myScore: '6-4', matchFormat: 'one-set', date: '2026-02-01', courtType: 'hard', result: 'win' },
-      { id: '2', opponent: 'Mike Johnson', myScore: '4-6, 6-7', matchFormat: 'two-sets', date: '2026-02-02', courtType: 'clay', result: 'loss' },
-      { id: '3', opponent: 'John Smith', myScore: '6-3, 7-5', matchFormat: 'two-sets', date: '2026-02-03', courtType: 'hard', result: 'win' },
-      { id: '4', opponent: 'Sarah Williams', myScore: '7-5', matchFormat: 'one-set', date: '2026-02-04', courtType: 'clay', result: 'win' },
-      { id: '5', opponent: 'Mike Johnson', myScore: '6-7, 6-4, 10-8', matchFormat: 'three-sets', date: '2026-02-05', courtType: 'hard', result: 'win' },
+      { id: '1', opponent: 'John Smith', myScore: '6-4', matchFormat: 'one-set', date: '2026-02-01', courtType: 'hard', location: 'Central Park Courts', result: 'win' },
+      { id: '2', opponent: 'Mike Johnson', myScore: '4-6, 6-7', matchFormat: 'two-sets', date: '2026-02-02', courtType: 'clay', location: 'Riverside Tennis Club', result: 'loss' },
+      { id: '3', opponent: 'John Smith', myScore: '6-3, 7-5', matchFormat: 'two-sets', date: '2026-02-03', courtType: 'hard', location: 'Central Park Courts', result: 'win' },
+      { id: '4', opponent: 'Sarah Williams', myScore: '7-5', matchFormat: 'one-set', date: '2026-02-04', courtType: 'clay', location: '', result: 'win' },
+      { id: '5', opponent: 'Mike Johnson', myScore: '6-7, 6-4, 10-8', matchFormat: 'three-sets', date: '2026-02-05', courtType: 'hard', location: 'Downtown Sports Complex', result: 'win' },
     ];
     setMatches(mockMatches);
   };
@@ -317,6 +318,7 @@ const TennisTrackerApp = () => {
       matchFormat,
       date: matchDate.toISOString().split('T')[0],
       courtType,
+      location: location.trim(),
       result,
     };
 
@@ -336,6 +338,7 @@ const TennisTrackerApp = () => {
     setSet3MyScore('');
     setSet3OppScore('');
     setCourtType('hard');
+    setLocation('');
     setMatchDate(new Date());
     setScoreErrors({});
     setShowAddMatch(false);
@@ -1118,6 +1121,9 @@ const TennisTrackerApp = () => {
                     </Text>
                   </View>
                 </View>
+                {match.location && (
+                  <Text style={styles.historyLocation}>📍 {match.location}</Text>
+                )}
               </View>
             ))}
           </View>
@@ -1513,6 +1519,16 @@ const TennisTrackerApp = () => {
                   })}
                 </Text>
               </TouchableOpacity>
+
+              <Text style={styles.label}>Location</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Where did you play? (e.g., Central Park Courts)"
+                value={location}
+                onChangeText={setLocation}
+                returnKeyType="done"
+                blurOnSubmit={true}
+              />
 
               <View style={styles.modalButtons}>
                 <TouchableOpacity
@@ -2088,6 +2104,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#999',
     textTransform: 'capitalize',
+  },
+  historyLocation: {
+    fontSize: 13,
+    color: '#666',
+    marginTop: 8,
+    fontStyle: 'italic',
   },
   // Larger FAB
   fab: {
