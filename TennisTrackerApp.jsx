@@ -16,10 +16,319 @@ import {
 
 const APP_VERSION = '1.0.0';
 
+// Translations
+const translations = {
+  en: {
+    // App
+    appTitle: '🎾 Tennis Tracker',
+
+    // Auth
+    welcomeBack: 'Welcome back!',
+    createAccount: 'Create your account',
+    completeProfile: 'Complete your profile',
+    email: 'Email',
+    password: 'Password',
+    login: 'Login',
+    register: 'Register',
+    next: 'Next',
+    back: 'Back',
+    alreadyHaveAccount: 'Already have an account? Login',
+    noAccount: "Don't have an account? Register",
+    completeRegistration: 'Complete Registration',
+
+    // Loading
+    loggingIn: 'Logging into your Tennis Universe',
+    creatingAccount: 'Creating your Tennis Universe',
+    success: 'Success!',
+
+    // Profile
+    firstName: 'First Name',
+    lastName: 'Last Name',
+    age: 'Age',
+    mainHand: 'Main Hand',
+    left: 'Left',
+    right: 'Right',
+    racket: 'Tennis Racket',
+    racketPlaceholder: 'e.g., Wilson Pro Staff 97',
+
+    // Navigation
+    stats: 'Stats',
+    history: 'History',
+    settings: 'Settings',
+
+    // Settings
+    close: 'Close',
+    profile: 'Profile',
+    notifications: 'Notifications',
+    about: 'About',
+    appVersion: 'App Version',
+    logout: 'Logout',
+    saveChanges: 'Save Changes',
+    language: 'Language',
+
+    // Notifications
+    dailyReminder: 'Daily Reminder',
+    reminderSubtitle: 'Get reminded to log your matches',
+    reminderTime: 'Reminder Time',
+    hour: 'Hour',
+    minute: 'Minute',
+    reminderPreview: "You'll receive a reminder at",
+    daily: 'daily',
+    reminderMessage: '"Did you play tennis today? Don\'t forget to log your match!"',
+
+    // Version Info
+    whatsNew: "What's New",
+    version: 'Version',
+    features: 'Features',
+    featureMatchTracking: 'Match Tracking',
+    featureMatchTrackingDesc: 'Log matches with opponent name, score, court type, and date',
+    featureStats: 'Statistics Dashboard',
+    featureStatsDesc: 'View win/loss record, win rate, streaks, and monthly performance',
+    featureOpponents: 'Opponent Analysis',
+    featureOpponentsDesc: 'Track your record against each opponent',
+    featureFormats: 'Match Formats',
+    featureFormatsDesc: 'Support for one set, two sets, and three sets with super tiebreak',
+    featureNotifications: 'Daily Reminders',
+    featureNotificationsDesc: 'Set a daily reminder to log your matches',
+    featureStrings: 'String Reminder',
+    featureStringsDesc: 'Get notified after 4 matches to check your string tension',
+    featureProfile: 'Player Profile',
+    featureProfileDesc: 'Store your name, age, main hand, and racket info',
+
+    // Stats
+    overallPerformance: 'Overall Performance in 2026',
+    wins: 'Wins',
+    losses: 'Losses',
+    winRate: 'Win Rate',
+    thisMonth: 'This Month',
+    winStreak: 'Win Streak!',
+    last5Matches: 'Last 5 Matches',
+    mostBeaten: 'Most Beaten Opponents',
+    toughestOpponents: 'Toughest Opponents',
+
+    // History
+    matchHistory: 'Match History',
+    win: 'WIN',
+    loss: 'LOSS',
+
+    // Add Match
+    addMatch: 'Add Match',
+    opponentName: 'Opponent Name',
+    matchFormat: 'Match Format',
+    oneSet: 'One Set',
+    twoSets: 'Two Sets',
+    threeSets: 'Three Sets',
+    set1Score: 'Set 1 Score',
+    set2Score: 'Set 2 Score',
+    set3SuperTiebreak: 'Set 3 - Super Tiebreak',
+    my: 'My',
+    opp: 'Opp',
+    courtType: 'Court Type',
+    clay: 'Clay',
+    hard: 'Hard',
+    location: 'Location',
+    locationPlaceholder: 'Where did you play? (e.g., Central Park Courts)',
+    matchDate: 'Match Date',
+    selectDate: 'Select Date',
+    day: 'Day',
+    month: 'Month',
+    year: 'Year',
+    today: 'Today',
+    yesterday: 'Yesterday',
+    done: 'Done',
+    cancel: 'Cancel',
+
+    // Alerts
+    error: 'Error',
+    errorEmailPassword: 'Please fill in email and password',
+    errorPasswordLength: 'Password must be at least 6 characters',
+    errorFirstLastName: 'Please enter your first and last name',
+    errorValidAge: 'Please enter a valid age (5-100)',
+    errorRacket: 'Please enter your tennis racket',
+    errorOpponentName: 'Add the name of the Opponent',
+    errorSet1Score: 'Please fill in the first set score',
+    errorSet2Score: 'Please fill in the second set score',
+    errorSet3Score: 'Please fill in the third set score',
+    errorAllFields: 'Please fill in all fields',
+    profileUpdated: 'Profile updated!',
+
+    // Toast Messages
+    matchAddedWin: 'Match added - Victory!',
+    matchAddedLoss: 'Match added - Better luck next time!',
+
+    // String Notification
+    stringNotificationTitle: 'Time for New Strings?',
+    stringNotificationText: "You've played 4 matches! Your strings may have lost tension and could affect your game. Consider getting them replaced for optimal performance.",
+    gotIt: 'Got it!',
+
+    // Score Errors
+    numbersOnly: 'Numbers only',
+    minIs: 'Min is',
+    maxIs: 'Max is',
+
+    // Language
+    off: 'Off',
+    at: 'at',
+  },
+  sr: {
+    // App
+    appTitle: '🎾 Tenis Tracker',
+
+    // Auth
+    welcomeBack: 'Dobrodošli nazad!',
+    createAccount: 'Napravite nalog',
+    completeProfile: 'Završite profil',
+    email: 'Email',
+    password: 'Lozinka',
+    login: 'Prijava',
+    register: 'Registracija',
+    next: 'Sledeće',
+    back: 'Nazad',
+    alreadyHaveAccount: 'Već imate nalog? Prijavite se',
+    noAccount: 'Nemate nalog? Registrujte se',
+    completeRegistration: 'Završi registraciju',
+
+    // Loading
+    loggingIn: 'Prijava u vaš Tenis Svet',
+    creatingAccount: 'Kreiranje vašeg Tenis Sveta',
+    success: 'Uspešno!',
+
+    // Profile
+    firstName: 'Ime',
+    lastName: 'Prezime',
+    age: 'Godine',
+    mainHand: 'Dominantna ruka',
+    left: 'Leva',
+    right: 'Desna',
+    racket: 'Tenis reket',
+    racketPlaceholder: 'npr., Wilson Pro Staff 97',
+
+    // Navigation
+    stats: 'Statistika',
+    history: 'Istorija',
+    settings: 'Podešavanja',
+
+    // Settings
+    close: 'Zatvori',
+    profile: 'Profil',
+    notifications: 'Obaveštenja',
+    about: 'O aplikaciji',
+    appVersion: 'Verzija aplikacije',
+    logout: 'Odjava',
+    saveChanges: 'Sačuvaj promene',
+    language: 'Jezik',
+
+    // Notifications
+    dailyReminder: 'Dnevni podsetnik',
+    reminderSubtitle: 'Podsetnik za unos mečeva',
+    reminderTime: 'Vreme podsetnika',
+    hour: 'Sat',
+    minute: 'Minut',
+    reminderPreview: 'Primiće podsetnik u',
+    daily: 'dnevno',
+    reminderMessage: '"Da li ste igrali tenis danas? Ne zaboravite da unesete meč!"',
+
+    // Version Info
+    whatsNew: 'Šta je novo',
+    version: 'Verzija',
+    features: 'Mogućnosti',
+    featureMatchTracking: 'Praćenje mečeva',
+    featureMatchTrackingDesc: 'Unesite mečeve sa imenom protivnika, rezultatom, tipom terena i datumom',
+    featureStats: 'Statistička tabla',
+    featureStatsDesc: 'Pogledajte pobede/poraze, procenat pobeda, nizove i mesečne performanse',
+    featureOpponents: 'Analiza protivnika',
+    featureOpponentsDesc: 'Pratite rezultate protiv svakog protivnika',
+    featureFormats: 'Formati mečeva',
+    featureFormatsDesc: 'Podrška za jedan set, dva seta i tri seta sa super tajbrejkom',
+    featureNotifications: 'Dnevni podsetnici',
+    featureNotificationsDesc: 'Podesite dnevni podsetnik za unos mečeva',
+    featureStrings: 'Podsetnik za žice',
+    featureStringsDesc: 'Dobijte obaveštenje posle 4 meča da proverite zatezanje žica',
+    featureProfile: 'Profil igrača',
+    featureProfileDesc: 'Sačuvajte ime, godine, dominantnu ruku i informacije o reketu',
+
+    // Stats
+    overallPerformance: 'Ukupne performanse u 2026',
+    wins: 'Pobede',
+    losses: 'Porazi',
+    winRate: 'Procenat pobeda',
+    thisMonth: 'Ovog meseca',
+    winStreak: 'Niz pobeda!',
+    last5Matches: 'Poslednjih 5 mečeva',
+    mostBeaten: 'Najčešće pobeđeni protivnici',
+    toughestOpponents: 'Najteži protivnici',
+
+    // History
+    matchHistory: 'Istorija mečeva',
+    win: 'POBEDA',
+    loss: 'PORAZ',
+
+    // Add Match
+    addMatch: 'Dodaj meč',
+    opponentName: 'Ime protivnika',
+    matchFormat: 'Format meča',
+    oneSet: 'Jedan set',
+    twoSets: 'Dva seta',
+    threeSets: 'Tri seta',
+    set1Score: 'Rezultat 1. seta',
+    set2Score: 'Rezultat 2. seta',
+    set3SuperTiebreak: 'Set 3 - Super tajbrejk',
+    my: 'Ja',
+    opp: 'Prot.',
+    courtType: 'Tip terena',
+    clay: 'Šljaka',
+    hard: 'Beton',
+    location: 'Lokacija',
+    locationPlaceholder: 'Gdje ste igrali? (npr., Centralni park)',
+    matchDate: 'Datum meča',
+    selectDate: 'Izaberite datum',
+    day: 'Dan',
+    month: 'Mesec',
+    year: 'Godina',
+    today: 'Danas',
+    yesterday: 'Juče',
+    done: 'Gotovo',
+    cancel: 'Otkaži',
+
+    // Alerts
+    error: 'Greška',
+    errorEmailPassword: 'Molimo unesite email i lozinku',
+    errorPasswordLength: 'Lozinka mora imati najmanje 6 karaktera',
+    errorFirstLastName: 'Molimo unesite ime i prezime',
+    errorValidAge: 'Molimo unesite validne godine (5-100)',
+    errorRacket: 'Molimo unesite tenis reket',
+    errorOpponentName: 'Dodajte ime protivnika',
+    errorSet1Score: 'Molimo unesite rezultat prvog seta',
+    errorSet2Score: 'Molimo unesite rezultat drugog seta',
+    errorSet3Score: 'Molimo unesite rezultat trećeg seta',
+    errorAllFields: 'Molimo popunite sva polja',
+    profileUpdated: 'Profil ažuriran!',
+
+    // Toast Messages
+    matchAddedWin: 'Meč dodat - Pobeda!',
+    matchAddedLoss: 'Meč dodat - Sledeći put bolje!',
+
+    // String Notification
+    stringNotificationTitle: 'Vreme za nove žice?',
+    stringNotificationText: 'Odigrali ste 4 meča! Vaše žice su možda izgubile zatezanje i mogu uticati na igru. Razmislite o zameni za optimalne performanse.',
+    gotIt: 'Razumem!',
+
+    // Score Errors
+    numbersOnly: 'Samo brojevi',
+    minIs: 'Min je',
+    maxIs: 'Maks je',
+
+    // Language
+    off: 'Isključeno',
+    at: 'u',
+  },
+};
+
 const TennisTrackerApp = () => {
   const [currentScreen, setCurrentScreen] = useState('login');
   const [user, setUser] = useState(null);
   const [matches, setMatches] = useState([]);
+  const [language, setLanguage] = useState('en');
 
   // Login/Register State
   const [email, setEmail] = useState('');
@@ -83,6 +392,9 @@ const TennisTrackerApp = () => {
   const set3MyRef = useRef(null);
   const set3OppRef = useRef(null);
 
+  // Translation helper
+  const t = (key) => translations[language][key] || key;
+
   // Get max score based on match format and set number
   const getMaxScore = (format, setNumber) => {
     if (format === 'one-set') return 9;
@@ -102,7 +414,7 @@ const TennisTrackerApp = () => {
 
     // Check if it's a number
     if (!/^\d+$/.test(value)) {
-      setScoreErrors(prev => ({ ...prev, [field]: 'Numbers only' }));
+      setScoreErrors(prev => ({ ...prev, [field]: t('numbersOnly') }));
       return '';
     }
 
@@ -110,12 +422,12 @@ const TennisTrackerApp = () => {
     const maxScore = getMaxScore(format, setNumber);
 
     if (numValue < 0) {
-      setScoreErrors(prev => ({ ...prev, [field]: 'Min is 0' }));
+      setScoreErrors(prev => ({ ...prev, [field]: `${t('minIs')} 0` }));
       return '0';
     }
 
     if (numValue > maxScore) {
-      setScoreErrors(prev => ({ ...prev, [field]: `Max is ${maxScore}` }));
+      setScoreErrors(prev => ({ ...prev, [field]: `${t('maxIs')} ${maxScore}` }));
       return maxScore.toString();
     }
 
@@ -152,11 +464,11 @@ const TennisTrackerApp = () => {
   // Handle registration step 1 (email/password)
   const handleRegisterStep1 = () => {
     if (!email || !password) {
-      Alert.alert('Error', 'Please fill in email and password');
+      Alert.alert(t('error'), t('errorEmailPassword'));
       return;
     }
     if (password.length < 6) {
-      Alert.alert('Error', 'Password must be at least 6 characters');
+      Alert.alert(t('error'), t('errorPasswordLength'));
       return;
     }
     Keyboard.dismiss();
@@ -166,15 +478,15 @@ const TennisTrackerApp = () => {
   // Handle registration step 2 (profile info)
   const handleRegisterStep2 = () => {
     if (!firstName.trim() || !lastName.trim()) {
-      Alert.alert('Error', 'Please enter your first and last name');
+      Alert.alert(t('error'), t('errorFirstLastName'));
       return;
     }
     if (!age || parseInt(age) < 5 || parseInt(age) > 100) {
-      Alert.alert('Error', 'Please enter a valid age (5-100)');
+      Alert.alert(t('error'), t('errorValidAge'));
       return;
     }
     if (!racket.trim()) {
-      Alert.alert('Error', 'Please enter your tennis racket');
+      Alert.alert(t('error'), t('errorRacket'));
       return;
     }
 
@@ -182,7 +494,7 @@ const TennisTrackerApp = () => {
     Keyboard.dismiss();
     setIsLoggingIn(true);
     setLoadingProgress(0);
-    setLoadingText('Creating your Tennis Universe');
+    setLoadingText(t('creatingAccount'));
 
     let progress = 0;
     const totalDuration = 1200;
@@ -195,7 +507,7 @@ const TennisTrackerApp = () => {
         progress = 100;
         clearInterval(interval);
         setLoadingProgress(100);
-        setLoadingText('Success!');
+        setLoadingText(t('success'));
 
         setTimeout(() => {
           setUser({
@@ -221,14 +533,14 @@ const TennisTrackerApp = () => {
   // Handle login with animation
   const handleLogin = () => {
     if (!email || !password) {
-      Alert.alert('Error', 'Please fill in all fields');
+      Alert.alert(t('error'), t('errorAllFields'));
       return;
     }
 
     Keyboard.dismiss();
     setIsLoggingIn(true);
     setLoadingProgress(0);
-    setLoadingText('Logging into your Tennis Universe');
+    setLoadingText(t('loggingIn'));
 
     let progress = 0;
     const totalDuration = 1200;
@@ -241,7 +553,7 @@ const TennisTrackerApp = () => {
         progress = 100;
         clearInterval(interval);
         setLoadingProgress(100);
-        setLoadingText('Success!');
+        setLoadingText(t('success'));
 
         setTimeout(() => {
           // Mock user with profile data
@@ -279,23 +591,23 @@ const TennisTrackerApp = () => {
   const addMatch = () => {
     // Validate opponent name first
     if (!opponentName.trim()) {
-      Alert.alert('Error', 'Add the name of the Opponent');
+      Alert.alert(t('error'), t('errorOpponentName'));
       return;
     }
 
     // Validate scores
     if (!set1MyScore || !set1OppScore) {
-      Alert.alert('Error', 'Please fill in the first set score');
+      Alert.alert(t('error'), t('errorSet1Score'));
       return;
     }
 
     if ((matchFormat === 'two-sets' || matchFormat === 'three-sets') && (!set2MyScore || !set2OppScore)) {
-      Alert.alert('Error', 'Please fill in the second set score');
+      Alert.alert(t('error'), t('errorSet2Score'));
       return;
     }
 
     if (matchFormat === 'three-sets' && (!set3MyScore || !set3OppScore)) {
-      Alert.alert('Error', 'Please fill in the third set score');
+      Alert.alert(t('error'), t('errorSet3Score'));
       return;
     }
 
@@ -344,7 +656,7 @@ const TennisTrackerApp = () => {
     setShowAddMatch(false);
 
     // Show auto-dismissing success toast
-    setSuccessMessage(result === 'win' ? 'Match added - Victory!' : 'Match added - Better luck next time!');
+    setSuccessMessage(result === 'win' ? t('matchAddedWin') : t('matchAddedLoss'));
     setShowSuccessToast(true);
     setTimeout(() => {
       setShowSuccessToast(false);
@@ -465,14 +777,20 @@ const TennisTrackerApp = () => {
     setCurrentScreen('login');
   };
 
+  // Language options
+  const languageOptions = [
+    { code: 'en', name: 'English', flag: '🇬🇧' },
+    { code: 'sr', name: 'Srpski', flag: '🇷🇸' },
+  ];
+
   // Update user profile
   const updateProfile = () => {
     if (!firstName.trim() || !lastName.trim()) {
-      Alert.alert('Error', 'Please enter your first and last name');
+      Alert.alert(t('error'), t('errorFirstLastName'));
       return;
     }
     if (!age || parseInt(age) < 5 || parseInt(age) > 100) {
-      Alert.alert('Error', 'Please enter a valid age (5-100)');
+      Alert.alert(t('error'), t('errorValidAge'));
       return;
     }
 
@@ -485,7 +803,7 @@ const TennisTrackerApp = () => {
       racket: racket.trim(),
     }));
 
-    Alert.alert('Success', 'Profile updated!');
+    Alert.alert(t('success'), t('profileUpdated'));
     setSettingsScreen('main');
   };
 
@@ -526,12 +844,12 @@ const TennisTrackerApp = () => {
         <SafeAreaView style={styles.container}>
           <ScrollView contentContainerStyle={styles.authScrollContainer}>
             <View style={styles.authContainer}>
-              <Text style={styles.title}>🎾 Tennis Tracker</Text>
-              <Text style={styles.subtitle}>Complete your profile</Text>
+              <Text style={styles.title}>{t('appTitle')}</Text>
+              <Text style={styles.subtitle}>{t('completeProfile')}</Text>
 
               <TextInput
                 style={styles.input}
-                placeholder="First Name"
+                placeholder={t('firstName')}
                 value={firstName}
                 onChangeText={setFirstName}
                 autoCapitalize="words"
@@ -540,7 +858,7 @@ const TennisTrackerApp = () => {
 
               <TextInput
                 style={styles.input}
-                placeholder="Last Name"
+                placeholder={t('lastName')}
                 value={lastName}
                 onChangeText={setLastName}
                 autoCapitalize="words"
@@ -549,7 +867,7 @@ const TennisTrackerApp = () => {
 
               <TextInput
                 style={styles.input}
-                placeholder="Age"
+                placeholder={t('age')}
                 value={age}
                 onChangeText={setAge}
                 keyboardType="number-pad"
@@ -557,7 +875,7 @@ const TennisTrackerApp = () => {
                 returnKeyType="next"
               />
 
-              <Text style={styles.label}>Main Hand</Text>
+              <Text style={styles.label}>{t('mainHand')}</Text>
               <View style={styles.handButtonGroup}>
                 <TouchableOpacity
                   style={[
@@ -569,7 +887,7 @@ const TennisTrackerApp = () => {
                   <Text style={[
                     styles.handButtonText,
                     mainHand === 'left' && styles.selectedHandButtonText
-                  ]}>Left</Text>
+                  ]}>{t('left')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[
@@ -581,24 +899,24 @@ const TennisTrackerApp = () => {
                   <Text style={[
                     styles.handButtonText,
                     mainHand === 'right' && styles.selectedHandButtonText
-                  ]}>Right</Text>
+                  ]}>{t('right')}</Text>
                 </TouchableOpacity>
               </View>
 
               <TextInput
                 style={styles.input}
-                placeholder="Tennis Racket (e.g., Wilson Pro Staff 97)"
+                placeholder={t('racketPlaceholder')}
                 value={racket}
                 onChangeText={setRacket}
                 returnKeyType="done"
               />
 
               <TouchableOpacity style={styles.primaryButton} onPress={handleRegisterStep2}>
-                <Text style={styles.primaryButtonText}>Complete Registration →</Text>
+                <Text style={styles.primaryButtonText}>{t('completeRegistration')} →</Text>
               </TouchableOpacity>
 
               <TouchableOpacity onPress={() => setRegisterStep(1)}>
-                <Text style={styles.linkText}>← Back</Text>
+                <Text style={styles.linkText}>← {t('back')}</Text>
               </TouchableOpacity>
             </View>
           </ScrollView>
@@ -610,14 +928,14 @@ const TennisTrackerApp = () => {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.authContainer}>
-          <Text style={styles.title}>🎾 Tennis Tracker</Text>
+          <Text style={styles.title}>{t('appTitle')}</Text>
           <Text style={styles.subtitle}>
-            {isRegister ? 'Create your account' : 'Welcome back!'}
+            {isRegister ? t('createAccount') : t('welcomeBack')}
           </Text>
 
           <TextInput
             style={styles.input}
-            placeholder="Email"
+            placeholder={t('email')}
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
@@ -630,7 +948,7 @@ const TennisTrackerApp = () => {
 
           <TextInput
             style={styles.input}
-            placeholder="Password"
+            placeholder={t('password')}
             value={password}
             onChangeText={setPassword}
             secureTextEntry={true}
@@ -647,7 +965,7 @@ const TennisTrackerApp = () => {
             onPress={isRegister ? handleRegisterStep1 : handleLogin}
           >
             <Text style={styles.primaryButtonText}>
-              {isRegister ? 'Next →' : 'Login →'}
+              {isRegister ? `${t('next')} →` : `${t('login')} →`}
             </Text>
           </TouchableOpacity>
 
@@ -656,7 +974,7 @@ const TennisTrackerApp = () => {
             setRegisterStep(1);
           }}>
             <Text style={styles.linkText}>
-              {isRegister ? 'Already have an account? Login' : "Don't have an account? Register"}
+              {isRegister ? t('alreadyHaveAccount') : t('noAccount')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -684,14 +1002,15 @@ const TennisTrackerApp = () => {
             }
           }}>
             <Text style={styles.settingsBackText}>
-              {settingsScreen === 'main' ? '✕ Close' : '← Back'}
+              {settingsScreen === 'main' ? `✕ ${t('close')}` : `← ${t('back')}`}
             </Text>
           </TouchableOpacity>
           <Text style={styles.settingsTitle}>
-            {settingsScreen === 'main' && 'Settings'}
-            {settingsScreen === 'profile' && 'Profile'}
-            {settingsScreen === 'notifications' && 'Notifications'}
-            {settingsScreen === 'version' && 'What\'s New'}
+            {settingsScreen === 'main' && t('settings')}
+            {settingsScreen === 'profile' && t('profile')}
+            {settingsScreen === 'notifications' && t('notifications')}
+            {settingsScreen === 'language' && t('language')}
+            {settingsScreen === 'version' && t('whatsNew')}
           </Text>
           <View style={{ width: 60 }} />
         </View>
@@ -714,7 +1033,7 @@ const TennisTrackerApp = () => {
               >
                 <Text style={styles.settingsItemIcon}>👤</Text>
                 <View style={styles.settingsItemContent}>
-                  <Text style={styles.settingsItemTitle}>Profile</Text>
+                  <Text style={styles.settingsItemTitle}>{t('profile')}</Text>
                   <Text style={styles.settingsItemSubtitle}>
                     {user.firstName} {user.lastName}
                   </Text>
@@ -728,23 +1047,37 @@ const TennisTrackerApp = () => {
               >
                 <Text style={styles.settingsItemIcon}>🔔</Text>
                 <View style={styles.settingsItemContent}>
-                  <Text style={styles.settingsItemTitle}>Notifications</Text>
+                  <Text style={styles.settingsItemTitle}>{t('notifications')}</Text>
                   <Text style={styles.settingsItemSubtitle}>
-                    {dailyReminderEnabled ? `Daily at ${formatTime(reminderHour, reminderMinute)}` : 'Off'}
+                    {dailyReminderEnabled ? `${t('daily')} ${t('at')} ${formatTime(reminderHour, reminderMinute)}` : t('off')}
+                  </Text>
+                </View>
+                <Text style={styles.settingsItemArrow}>›</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.settingsItem}
+                onPress={() => setSettingsScreen('language')}
+              >
+                <Text style={styles.settingsItemIcon}>🌐</Text>
+                <View style={styles.settingsItemContent}>
+                  <Text style={styles.settingsItemTitle}>{t('language')}</Text>
+                  <Text style={styles.settingsItemSubtitle}>
+                    {language === 'en' ? 'English' : 'Srpski'}
                   </Text>
                 </View>
                 <Text style={styles.settingsItemArrow}>›</Text>
               </TouchableOpacity>
 
               <View style={styles.settingsSection}>
-                <Text style={styles.settingsSectionTitle}>About</Text>
+                <Text style={styles.settingsSectionTitle}>{t('about')}</Text>
                 <TouchableOpacity
                   style={styles.settingsItem}
                   onPress={() => setSettingsScreen('version')}
                 >
                   <Text style={styles.settingsItemIcon}>📱</Text>
                   <View style={styles.settingsItemContent}>
-                    <Text style={styles.settingsItemTitle}>App Version</Text>
+                    <Text style={styles.settingsItemTitle}>{t('appVersion')}</Text>
                     <Text style={styles.settingsItemSubtitle}>{APP_VERSION}</Text>
                   </View>
                   <Text style={styles.settingsItemArrow}>›</Text>
@@ -755,7 +1088,7 @@ const TennisTrackerApp = () => {
                 style={styles.logoutButton}
                 onPress={handleLogout}
               >
-                <Text style={styles.logoutButtonText}>Logout</Text>
+                <Text style={styles.logoutButtonText}>{t('logout')}</Text>
               </TouchableOpacity>
             </>
           )}
@@ -763,7 +1096,7 @@ const TennisTrackerApp = () => {
           {/* Profile Screen */}
           {settingsScreen === 'profile' && (
             <View style={styles.profileForm}>
-              <Text style={styles.formLabel}>First Name</Text>
+              <Text style={styles.formLabel}>{t('firstName')}</Text>
               <TextInput
                 style={styles.input}
                 value={firstName}
@@ -771,7 +1104,7 @@ const TennisTrackerApp = () => {
                 autoCapitalize="words"
               />
 
-              <Text style={styles.formLabel}>Last Name</Text>
+              <Text style={styles.formLabel}>{t('lastName')}</Text>
               <TextInput
                 style={styles.input}
                 value={lastName}
@@ -779,7 +1112,7 @@ const TennisTrackerApp = () => {
                 autoCapitalize="words"
               />
 
-              <Text style={styles.formLabel}>Age</Text>
+              <Text style={styles.formLabel}>{t('age')}</Text>
               <TextInput
                 style={styles.input}
                 value={age}
@@ -788,7 +1121,7 @@ const TennisTrackerApp = () => {
                 maxLength={3}
               />
 
-              <Text style={styles.formLabel}>Main Hand</Text>
+              <Text style={styles.formLabel}>{t('mainHand')}</Text>
               <View style={styles.handButtonGroup}>
                 <TouchableOpacity
                   style={[
@@ -800,7 +1133,7 @@ const TennisTrackerApp = () => {
                   <Text style={[
                     styles.handButtonText,
                     mainHand === 'left' && styles.selectedHandButtonText
-                  ]}>Left</Text>
+                  ]}>{t('left')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[
@@ -812,20 +1145,20 @@ const TennisTrackerApp = () => {
                   <Text style={[
                     styles.handButtonText,
                     mainHand === 'right' && styles.selectedHandButtonText
-                  ]}>Right</Text>
+                  ]}>{t('right')}</Text>
                 </TouchableOpacity>
               </View>
 
-              <Text style={styles.formLabel}>Tennis Racket</Text>
+              <Text style={styles.formLabel}>{t('racket')}</Text>
               <TextInput
                 style={styles.input}
                 value={racket}
                 onChangeText={setRacket}
-                placeholder="e.g., Wilson Pro Staff 97"
+                placeholder={t('racketPlaceholder')}
               />
 
               <TouchableOpacity style={styles.saveButton} onPress={updateProfile}>
-                <Text style={styles.saveButtonText}>Save Changes</Text>
+                <Text style={styles.saveButtonText}>{t('saveChanges')}</Text>
               </TouchableOpacity>
             </View>
           )}
@@ -835,9 +1168,9 @@ const TennisTrackerApp = () => {
             <View style={styles.notificationsForm}>
               <View style={styles.notificationToggleRow}>
                 <View>
-                  <Text style={styles.notificationTitle}>Daily Reminder</Text>
+                  <Text style={styles.notificationTitle}>{t('dailyReminder')}</Text>
                   <Text style={styles.notificationSubtitle}>
-                    Get reminded to log your matches
+                    {t('reminderSubtitle')}
                   </Text>
                 </View>
                 <Switch
@@ -850,10 +1183,10 @@ const TennisTrackerApp = () => {
 
               {dailyReminderEnabled && (
                 <>
-                  <Text style={styles.formLabel}>Reminder Time</Text>
+                  <Text style={styles.formLabel}>{t('reminderTime')}</Text>
                   <View style={styles.timePickerRow}>
                     <View style={styles.timePicker}>
-                      <Text style={styles.timePickerLabel}>Hour</Text>
+                      <Text style={styles.timePickerLabel}>{t('hour')}</Text>
                       <View style={styles.timeSelector}>
                         <TouchableOpacity
                           style={styles.timeArrowButton}
@@ -874,7 +1207,7 @@ const TennisTrackerApp = () => {
                     <Text style={styles.timeColon}>:</Text>
 
                     <View style={styles.timePicker}>
-                      <Text style={styles.timePickerLabel}>Minute</Text>
+                      <Text style={styles.timePickerLabel}>{t('minute')}</Text>
                       <View style={styles.timeSelector}>
                         <TouchableOpacity
                           style={styles.timeArrowButton}
@@ -894,13 +1227,36 @@ const TennisTrackerApp = () => {
                   </View>
 
                   <Text style={styles.notificationPreview}>
-                    You'll receive a reminder at {formatTime(reminderHour, reminderMinute)} daily
+                    {t('reminderPreview')} {formatTime(reminderHour, reminderMinute)} {t('daily')}
                   </Text>
                   <Text style={styles.notificationNote}>
-                    "Did you play tennis today? Don't forget to log your match!"
+                    {t('reminderMessage')}
                   </Text>
                 </>
               )}
+            </View>
+          )}
+
+          {/* Language Screen */}
+          {settingsScreen === 'language' && (
+            <View style={styles.languageForm}>
+              <TouchableOpacity
+                style={styles.languageOption}
+                onPress={() => setLanguage('en')}
+              >
+                <Text style={styles.languageFlag}>🇺🇸</Text>
+                <Text style={styles.languageName}>English</Text>
+                {language === 'en' && <Text style={styles.languageCheck}>✓</Text>}
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.languageOption}
+                onPress={() => setLanguage('sr')}
+              >
+                <Text style={styles.languageFlag}>🇷🇸</Text>
+                <Text style={styles.languageName}>Srpski</Text>
+                {language === 'sr' && <Text style={styles.languageCheck}>✓</Text>}
+              </TouchableOpacity>
             </View>
           )}
 
@@ -908,65 +1264,65 @@ const TennisTrackerApp = () => {
           {settingsScreen === 'version' && (
             <View style={styles.versionInfo}>
               <View style={styles.versionHeader}>
-                <Text style={styles.versionNumber}>Version {APP_VERSION}</Text>
+                <Text style={styles.versionNumber}>{t('version')} {APP_VERSION}</Text>
                 <Text style={styles.versionDate}>February 2026</Text>
               </View>
 
-              <Text style={styles.versionSectionTitle}>Features</Text>
+              <Text style={styles.versionSectionTitle}>{t('features')}</Text>
 
               <View style={styles.featureItem}>
                 <Text style={styles.featureIcon}>🎾</Text>
                 <View style={styles.featureContent}>
-                  <Text style={styles.featureTitle}>Match Tracking</Text>
-                  <Text style={styles.featureDescription}>Log matches with opponent name, score, court type, and date</Text>
+                  <Text style={styles.featureTitle}>{t('featureMatchTracking')}</Text>
+                  <Text style={styles.featureDescription}>{t('featureMatchTrackingDesc')}</Text>
                 </View>
               </View>
 
               <View style={styles.featureItem}>
                 <Text style={styles.featureIcon}>📊</Text>
                 <View style={styles.featureContent}>
-                  <Text style={styles.featureTitle}>Statistics Dashboard</Text>
-                  <Text style={styles.featureDescription}>View win/loss record, win rate, streaks, and monthly performance</Text>
+                  <Text style={styles.featureTitle}>{t('featureStats')}</Text>
+                  <Text style={styles.featureDescription}>{t('featureStatsDesc')}</Text>
                 </View>
               </View>
 
               <View style={styles.featureItem}>
                 <Text style={styles.featureIcon}>👥</Text>
                 <View style={styles.featureContent}>
-                  <Text style={styles.featureTitle}>Opponent Analysis</Text>
-                  <Text style={styles.featureDescription}>Track your record against each opponent</Text>
+                  <Text style={styles.featureTitle}>{t('featureOpponents')}</Text>
+                  <Text style={styles.featureDescription}>{t('featureOpponentsDesc')}</Text>
                 </View>
               </View>
 
               <View style={styles.featureItem}>
                 <Text style={styles.featureIcon}>🏆</Text>
                 <View style={styles.featureContent}>
-                  <Text style={styles.featureTitle}>Match Formats</Text>
-                  <Text style={styles.featureDescription}>Support for one set, two sets, and three sets with super tiebreak</Text>
+                  <Text style={styles.featureTitle}>{t('featureFormats')}</Text>
+                  <Text style={styles.featureDescription}>{t('featureFormatsDesc')}</Text>
                 </View>
               </View>
 
               <View style={styles.featureItem}>
                 <Text style={styles.featureIcon}>🔔</Text>
                 <View style={styles.featureContent}>
-                  <Text style={styles.featureTitle}>Daily Reminders</Text>
-                  <Text style={styles.featureDescription}>Set a daily reminder to log your matches</Text>
+                  <Text style={styles.featureTitle}>{t('featureNotifications')}</Text>
+                  <Text style={styles.featureDescription}>{t('featureNotificationsDesc')}</Text>
                 </View>
               </View>
 
               <View style={styles.featureItem}>
                 <Text style={styles.featureIcon}>🎸</Text>
                 <View style={styles.featureContent}>
-                  <Text style={styles.featureTitle}>String Reminder</Text>
-                  <Text style={styles.featureDescription}>Get notified after 4 matches to check your string tension</Text>
+                  <Text style={styles.featureTitle}>{t('featureStrings')}</Text>
+                  <Text style={styles.featureDescription}>{t('featureStringsDesc')}</Text>
                 </View>
               </View>
 
               <View style={styles.featureItem}>
                 <Text style={styles.featureIcon}>👤</Text>
                 <View style={styles.featureContent}>
-                  <Text style={styles.featureTitle}>Player Profile</Text>
-                  <Text style={styles.featureDescription}>Store your name, age, main hand, and racket info</Text>
+                  <Text style={styles.featureTitle}>{t('featureProfile')}</Text>
+                  <Text style={styles.featureDescription}>{t('featureProfileDesc')}</Text>
                 </View>
               </View>
             </View>
@@ -980,7 +1336,7 @@ const TennisTrackerApp = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>🎾 Tennis Tracker</Text>
+        <Text style={styles.headerTitle}>{t('appTitle')}</Text>
         <TouchableOpacity onPress={() => setShowSettings(true)}>
           <Text style={styles.settingsIcon}>⚙️</Text>
         </TouchableOpacity>
@@ -993,7 +1349,7 @@ const TennisTrackerApp = () => {
           onPress={() => setCurrentScreen('home')}
         >
           <Text style={[styles.tabText, currentScreen === 'home' && styles.activeTabText]}>
-            Stats
+            {t('stats')}
           </Text>
         </TouchableOpacity>
 
@@ -1002,7 +1358,7 @@ const TennisTrackerApp = () => {
           onPress={() => setCurrentScreen('history')}
         >
           <Text style={[styles.tabText, currentScreen === 'history' && styles.activeTabText]}>
-            History
+            {t('history')}
           </Text>
         </TouchableOpacity>
       </View>
@@ -1012,34 +1368,34 @@ const TennisTrackerApp = () => {
           <View>
             {/* Overall Stats */}
             <View style={styles.statsCard}>
-              <Text style={styles.cardTitle}>Overall Performance in 2026</Text>
+              <Text style={styles.cardTitle}>{t('overallPerformance')}</Text>
               <View style={styles.statsRow}>
                 <View style={styles.statBox}>
                   <Text style={styles.statNumber}>{stats.wins}</Text>
-                  <Text style={styles.statLabel}>Wins</Text>
+                  <Text style={styles.statLabel}>{t('wins')}</Text>
                 </View>
                 <View style={styles.statBox}>
                   <Text style={styles.statNumber}>{stats.losses}</Text>
-                  <Text style={styles.statLabel}>Losses</Text>
+                  <Text style={styles.statLabel}>{t('losses')}</Text>
                 </View>
                 <View style={styles.statBox}>
                   <Text style={styles.statNumber}>{stats.winRate}%</Text>
-                  <Text style={styles.statLabel}>Win Rate</Text>
+                  <Text style={styles.statLabel}>{t('winRate')}</Text>
                 </View>
               </View>
             </View>
 
             {/* Monthly Stats */}
             <View style={styles.card}>
-              <Text style={styles.cardTitle}>This Month</Text>
+              <Text style={styles.cardTitle}>{t('thisMonth')}</Text>
               <View style={styles.statsRow}>
                 <View style={styles.statBox}>
                   <Text style={styles.statNumber}>{stats.monthlyWins}</Text>
-                  <Text style={styles.statLabel}>Wins</Text>
+                  <Text style={styles.statLabel}>{t('wins')}</Text>
                 </View>
                 <View style={styles.statBox}>
                   <Text style={styles.statNumber}>{stats.monthlyLosses}</Text>
-                  <Text style={styles.statLabel}>Losses</Text>
+                  <Text style={styles.statLabel}>{t('losses')}</Text>
                 </View>
               </View>
             </View>
@@ -1049,14 +1405,14 @@ const TennisTrackerApp = () => {
               <View style={styles.streakCard}>
                 <Text style={styles.streakEmoji}>🔥</Text>
                 <Text style={styles.streakText}>
-                  {stats.currentStreak} Win Streak!
+                  {stats.currentStreak} {t('winStreak')}
                 </Text>
               </View>
             )}
 
             {/* Last 5 Matches */}
             <View style={styles.card}>
-              <Text style={styles.cardTitle}>Last 5 Matches</Text>
+              <Text style={styles.cardTitle}>{t('last5Matches')}</Text>
               {stats.last5.map((match) => (
                 <View key={match.id} style={styles.matchItem}>
                   <Text style={styles.matchOpponent}>{match.opponent}</Text>
@@ -1077,7 +1433,7 @@ const TennisTrackerApp = () => {
 
             {/* Opponent Stats */}
             <View style={styles.card}>
-              <Text style={styles.cardTitle}>Most Beaten Opponents</Text>
+              <Text style={styles.cardTitle}>{t('mostBeaten')}</Text>
               {stats.mostBeaten.map(([opponent, record]) => (
                 <View key={opponent} style={styles.opponentItem}>
                   <Text style={styles.opponentName}>{opponent}</Text>
@@ -1087,7 +1443,7 @@ const TennisTrackerApp = () => {
             </View>
 
             <View style={styles.card}>
-              <Text style={styles.cardTitle}>Toughest Opponents</Text>
+              <Text style={styles.cardTitle}>{t('toughestOpponents')}</Text>
               {stats.mostLostTo.map(([opponent, record]) => (
                 <View key={opponent} style={styles.opponentItem}>
                   <Text style={styles.opponentName}>{opponent}</Text>
@@ -1100,7 +1456,7 @@ const TennisTrackerApp = () => {
 
         {currentScreen === 'history' && (
           <View>
-            <Text style={styles.sectionTitle}>Match History</Text>
+            <Text style={styles.sectionTitle}>{t('matchHistory')}</Text>
             {matches.map((match) => (
               <View key={match.id} style={styles.historyCard}>
                 <View style={styles.historyHeader}>
@@ -1111,13 +1467,13 @@ const TennisTrackerApp = () => {
                   <Text style={styles.historyScore}>
                     {match.myScore}
                   </Text>
-                  <Text style={styles.historyCourt}>{match.courtType}</Text>
+                  <Text style={styles.historyCourt}>{t(match.courtType)}</Text>
                   <View style={[
                     styles.resultBadge,
                     match.result === 'win' ? styles.winBadge : styles.lossBadge
                   ]}>
                     <Text style={styles.resultText}>
-                      {match.result === 'win' ? 'WIN' : 'LOSS'}
+                      {match.result === 'win' ? t('win') : t('loss')}
                     </Text>
                   </View>
                 </View>
@@ -1148,17 +1504,20 @@ const TennisTrackerApp = () => {
         transparent={true}
       >
         <View style={styles.modalOverlay}>
-          <ScrollView contentContainerStyle={styles.modalScrollContent}>
+          <ScrollView
+            contentContainerStyle={styles.modalScrollContent}
+            keyboardShouldPersistTaps='handled'
+          >
             <View style={styles.modalContent}>
 
               {/* Date Picker View */}
               {showDatePicker ? (
                 <>
-                  <Text style={styles.modalTitle}>Select Date</Text>
+                  <Text style={styles.modalTitle}>{t('selectDate')}</Text>
 
                   {/* Day Selector */}
                   <View style={styles.dateRow}>
-                    <Text style={styles.dateLabel}>Day</Text>
+                    <Text style={styles.dateLabel}>{t('day')}</Text>
                     <View style={styles.dateSelector}>
                       <TouchableOpacity
                         style={styles.arrowButton}
@@ -1184,7 +1543,7 @@ const TennisTrackerApp = () => {
 
                   {/* Month Selector */}
                   <View style={styles.dateRow}>
-                    <Text style={styles.dateLabel}>Month</Text>
+                    <Text style={styles.dateLabel}>{t('month')}</Text>
                     <View style={styles.dateSelector}>
                       <TouchableOpacity
                         style={styles.arrowButton}
@@ -1214,7 +1573,7 @@ const TennisTrackerApp = () => {
 
                   {/* Year Selector */}
                   <View style={styles.dateRow}>
-                    <Text style={styles.dateLabel}>Year</Text>
+                    <Text style={styles.dateLabel}>{t('year')}</Text>
                     <View style={styles.dateSelector}>
                       <TouchableOpacity
                         style={styles.arrowButton}
@@ -1251,7 +1610,7 @@ const TennisTrackerApp = () => {
                         setSelectedYear(today.getFullYear());
                       }}
                     >
-                      <Text style={styles.quickDateText}>Today</Text>
+                      <Text style={styles.quickDateText}>{t('today')}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                       style={styles.quickDateButton}
@@ -1263,7 +1622,7 @@ const TennisTrackerApp = () => {
                         setSelectedYear(yesterday.getFullYear());
                       }}
                     >
-                      <Text style={styles.quickDateText}>Yesterday</Text>
+                      <Text style={styles.quickDateText}>{t('yesterday')}</Text>
                     </TouchableOpacity>
                   </View>
 
@@ -1271,23 +1630,23 @@ const TennisTrackerApp = () => {
                     style={[styles.button, styles.addButton, { marginTop: 20 }]}
                     onPress={applyDate}
                   >
-                    <Text style={styles.addButtonText}>Done</Text>
+                    <Text style={styles.addButtonText}>{t('done')}</Text>
                   </TouchableOpacity>
                 </>
               ) : (
               <>
-              <Text style={styles.modalTitle}>Add Match</Text>
+              <Text style={styles.modalTitle}>{t('addMatch')}</Text>
 
               <TextInput
                 style={styles.input}
-                placeholder="Opponent Name"
+                placeholder={t('opponentName')}
                 value={opponentName}
                 onChangeText={setOpponentName}
                 returnKeyType="done"
                 blurOnSubmit={true}
               />
 
-              <Text style={styles.label}>Match Format</Text>
+              <Text style={styles.label}>{t('matchFormat')}</Text>
               <View style={styles.buttonGroup}>
                 <TouchableOpacity
                   style={[
@@ -1307,7 +1666,7 @@ const TennisTrackerApp = () => {
                     styles.optionText,
                     matchFormat === 'one-set' && styles.selectedOptionText
                   ]}>
-                    One Set
+                    {t('oneSet')}
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -1326,7 +1685,7 @@ const TennisTrackerApp = () => {
                     styles.optionText,
                     matchFormat === 'two-sets' && styles.selectedOptionText
                   ]}>
-                    Two Sets
+                    {t('twoSets')}
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -1343,17 +1702,17 @@ const TennisTrackerApp = () => {
                     styles.optionText,
                     matchFormat === 'three-sets' && styles.selectedOptionText
                   ]}>
-                    Three Sets
+                    {t('threeSets')}
                   </Text>
                 </TouchableOpacity>
               </View>
 
-              <Text style={styles.label}>Set 1 Score</Text>
+              <Text style={styles.label}>{t('set1Score')}</Text>
               <View style={styles.scoreRow}>
                 <View style={styles.scoreInputContainer}>
                   <TextInput
                     style={[styles.input, styles.scoreInput, scoreErrors.set1My && styles.inputError]}
-                    placeholder="My"
+                    placeholder={t('my')}
                     value={set1MyScore}
                     onChangeText={(text) => {
                       const validated = validateScore(text, matchFormat, 1, 'set1My');
@@ -1372,7 +1731,7 @@ const TennisTrackerApp = () => {
                   <TextInput
                     ref={set1OppRef}
                     style={[styles.input, styles.scoreInput, scoreErrors.set1Opp && styles.inputError]}
-                    placeholder="Opp"
+                    placeholder={t('opp')}
                     value={set1OppScore}
                     onChangeText={(text) => {
                       const validated = validateScore(text, matchFormat, 1, 'set1Opp');
@@ -1392,13 +1751,13 @@ const TennisTrackerApp = () => {
 
               {(matchFormat === 'two-sets' || matchFormat === 'three-sets') && (
                 <>
-                  <Text style={styles.label}>Set 2 Score</Text>
+                  <Text style={styles.label}>{t('set2Score')}</Text>
                   <View style={styles.scoreRow}>
                     <View style={styles.scoreInputContainer}>
                       <TextInput
                         ref={set2MyRef}
                         style={[styles.input, styles.scoreInput, scoreErrors.set2My && styles.inputError]}
-                        placeholder="My"
+                        placeholder={t('my')}
                         value={set2MyScore}
                         onChangeText={(text) => {
                           const validated = validateScore(text, matchFormat, 2, 'set2My');
@@ -1417,7 +1776,7 @@ const TennisTrackerApp = () => {
                       <TextInput
                         ref={set2OppRef}
                         style={[styles.input, styles.scoreInput, scoreErrors.set2Opp && styles.inputError]}
-                        placeholder="Opp"
+                        placeholder={t('opp')}
                         value={set2OppScore}
                         onChangeText={(text) => {
                           const validated = validateScore(text, matchFormat, 2, 'set2Opp');
@@ -1439,13 +1798,13 @@ const TennisTrackerApp = () => {
 
               {matchFormat === 'three-sets' && (
                 <>
-                  <Text style={styles.label}>Set 3 - Super Tiebreak</Text>
+                  <Text style={styles.label}>{t('set3SuperTiebreak')}</Text>
                   <View style={styles.scoreRow}>
                     <View style={styles.scoreInputContainer}>
                       <TextInput
                         ref={set3MyRef}
                         style={[styles.input, styles.scoreInput, scoreErrors.set3My && styles.inputError]}
-                        placeholder="My"
+                        placeholder={t('my')}
                         value={set3MyScore}
                         onChangeText={(text) => {
                           const validated = validateScore(text, matchFormat, 3, 'set3My');
@@ -1464,7 +1823,7 @@ const TennisTrackerApp = () => {
                       <TextInput
                         ref={set3OppRef}
                         style={[styles.input, styles.scoreInput, scoreErrors.set3Opp && styles.inputError]}
-                        placeholder="Opp"
+                        placeholder={t('opp')}
                         value={set3OppScore}
                         onChangeText={(text) => setSet3OppScore(validateScore(text, matchFormat, 3, 'set3Opp'))}
                         keyboardType="number-pad"
@@ -1478,7 +1837,7 @@ const TennisTrackerApp = () => {
                 </>
               )}
 
-              <Text style={styles.label}>Court Type</Text>
+              <Text style={styles.label}>{t('courtType')}</Text>
               <View style={styles.courtButtonGroup}>
                 <TouchableOpacity
                   style={[
@@ -1489,7 +1848,7 @@ const TennisTrackerApp = () => {
                   onPress={() => setCourtType('clay')}
                 >
                   <Text style={styles.courtButtonText}>
-                    Clay
+                    {t('clay')}
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -1501,12 +1860,12 @@ const TennisTrackerApp = () => {
                   onPress={() => setCourtType('hard')}
                 >
                   <Text style={styles.courtButtonText}>
-                    Hard
+                    {t('hard')}
                   </Text>
                 </TouchableOpacity>
               </View>
 
-              <Text style={styles.label}>Match Date</Text>
+              <Text style={styles.label}>{t('matchDate')}</Text>
               <TouchableOpacity
                 style={styles.dateButton}
                 onPress={openDatePicker}
@@ -1520,10 +1879,10 @@ const TennisTrackerApp = () => {
                 </Text>
               </TouchableOpacity>
 
-              <Text style={styles.label}>Location</Text>
+              <Text style={styles.label}>{t('location')}</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Where did you play? (e.g., Central Park Courts)"
+                placeholder={t('locationPlaceholder')}
                 value={location}
                 onChangeText={setLocation}
                 returnKeyType="done"
@@ -1538,14 +1897,14 @@ const TennisTrackerApp = () => {
                     setScoreErrors({});
                   }}
                 >
-                  <Text style={styles.cancelButtonText}>Cancel</Text>
+                  <Text style={styles.cancelButtonText}>{t('cancel')}</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
                   style={[styles.button, styles.addButton]}
                   onPress={addMatch}
                 >
-                  <Text style={styles.addButtonText}>Add Match</Text>
+                  <Text style={styles.addButtonText}>{t('addMatch')}</Text>
                 </TouchableOpacity>
               </View>
               </>
@@ -1564,15 +1923,15 @@ const TennisTrackerApp = () => {
         <View style={styles.modalOverlay}>
           <View style={styles.stringNotificationModal}>
             <Text style={styles.stringNotificationEmoji}>🎾</Text>
-            <Text style={styles.stringNotificationTitle}>Time for New Strings?</Text>
+            <Text style={styles.stringNotificationTitle}>{t('stringNotificationTitle')}</Text>
             <Text style={styles.stringNotificationText}>
-              You've played 4 matches! Your strings may have lost tension and could affect your game. Consider getting them replaced for optimal performance.
+              {t('stringNotificationText')}
             </Text>
             <TouchableOpacity
               style={styles.stringNotificationButton}
               onPress={() => setShowStringNotification(false)}
             >
-              <Text style={styles.stringNotificationButtonText}>Got it!</Text>
+              <Text style={styles.stringNotificationButtonText}>{t('gotIt')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -1917,6 +2276,34 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 10,
     fontStyle: 'italic',
+  },
+  // Language Settings
+  languageForm: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  languageOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  languageFlag: {
+    fontSize: 32,
+    marginRight: 15,
+  },
+  languageName: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333',
+    flex: 1,
+  },
+  languageCheck: {
+    fontSize: 24,
+    color: '#2e7d32',
+    fontWeight: 'bold',
   },
   // Tab Bar
   tabBar: {
