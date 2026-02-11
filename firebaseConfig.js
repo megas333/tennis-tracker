@@ -2,15 +2,15 @@ import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
-// Your Firebase configuration
-// Get these values from Firebase Console > Project Settings > General
+// Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyAKrTdXFW2DDsmD6STgcgszEJOEMUENBZY",
+  authDomain: "tennis-tracker-f370d.firebaseapp.com",
+  projectId: "tennis-tracker-f370d",
+  storageBucket: "tennis-tracker-f370d.firebasestorage.app",
+  messagingSenderId: "930040866964",
+  appId: "1:930040866964:web:1019757aca7206b8f1ec81",
+  measurementId: "G-N89WX32JN2"
 };
 
 // Initialize Firebase

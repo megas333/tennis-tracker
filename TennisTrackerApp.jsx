@@ -13,6 +13,26 @@ import {
   Keyboard,
   Switch,
 } from 'react-native';
+import { auth, db } from './firebaseConfig';
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut
+} from 'firebase/auth';
+import {
+  doc,
+  setDoc,
+  getDoc,
+  collection,
+  addDoc,
+  query,
+  where,
+  orderBy,
+  getDocs,
+  updateDoc,
+  onSnapshot
+} from 'firebase/firestore';
 
 const APP_VERSION = '1.0.0';
 
@@ -395,6 +415,49 @@ const TennisTrackerApp = () => {
   // Translation helper
   const t = (key) => translations[language][key] || key;
 
+  // Listen for auth state changes
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        // User is signed in, load their profile
+        const userDocRef = doc(db, 'users', firebaseUser.uid);
+        const userDoc = await getDoc(userDocRef);
+
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          setUser({
+            email: firebaseUser.email,
+            uid: firebaseUser.uid,
+            ...userData
+          });
+          setLanguage(userData.language || 'en');
+          setDailyReminderEnabled(userData.dailyReminderEnabled || false);
+          setReminderHour(userData.reminderHour || 20);
+          setReminderMinute(userData.reminderMinute || 0);
+          setUserAddedMatchCount(userData.userAddedMatchCount || 0);
+          setStringNotificationShown(userData.stringNotificationShown || false);
+
+          // Also load profile data into form fields
+          setFirstName(userData.firstName || '');
+          setLastName(userData.lastName || '');
+          setAge(userData.age ? userData.age.toString() : '');
+          setMainHand(userData.mainHand || 'right');
+          setRacket(userData.racket || '');
+
+          setCurrentScreen('home');
+          loadMatches(firebaseUser.uid);
+        }
+      } else {
+        // User is signed out
+        setUser(null);
+        setMatches([]);
+        setCurrentScreen('login');
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   // Get max score based on match format and set number
   const getMaxScore = (format, setNumber) => {
     if (format === 'one-set') return 9;
@@ -476,7 +539,7 @@ const TennisTrackerApp = () => {
   };
 
   // Handle registration step 2 (profile info)
-  const handleRegisterStep2 = () => {
+  const handleRegisterStep2 = async () => {
     if (!firstName.trim() || !lastName.trim()) {
       Alert.alert(t('error'), t('errorFirstLastName'));
       return;
@@ -490,48 +553,57 @@ const TennisTrackerApp = () => {
       return;
     }
 
-    // Complete registration
     Keyboard.dismiss();
     setIsLoggingIn(true);
     setLoadingProgress(0);
     setLoadingText(t('creatingAccount'));
 
-    let progress = 0;
-    const totalDuration = 1200;
-    const intervalTime = 30;
-    const increment = 100 / (totalDuration / intervalTime);
+    try {
+      // Simulate progress animation
+      let progress = 0;
+      const interval = setInterval(() => {
+        progress += 5;
+        setLoadingProgress(Math.min(progress, 90));
+      }, 30);
 
-    const interval = setInterval(() => {
-      progress += increment;
-      if (progress >= 100) {
-        progress = 100;
-        clearInterval(interval);
-        setLoadingProgress(100);
-        setLoadingText(t('success'));
+      // Create user in Firebase Auth
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
 
-        setTimeout(() => {
-          setUser({
-            email,
-            uid: 'mock-uid',
-            firstName,
-            lastName,
-            age: parseInt(age),
-            mainHand,
-            racket,
-          });
-          setCurrentScreen('home');
-          setIsLoggingIn(false);
-          setRegisterStep(1);
-          loadMatches();
-        }, 500);
-      } else {
-        setLoadingProgress(Math.floor(progress));
-      }
-    }, intervalTime);
+      // Save user profile to Firestore
+      await setDoc(doc(db, 'users', user.uid), {
+        email: user.email,
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        age: parseInt(age),
+        mainHand,
+        racket: racket.trim(),
+        language: 'en',
+        dailyReminderEnabled: false,
+        reminderHour: 20,
+        reminderMinute: 0,
+        userAddedMatchCount: 0,
+        stringNotificationShown: false,
+        createdAt: new Date().toISOString()
+      });
+
+      clearInterval(interval);
+      setLoadingProgress(100);
+      setLoadingText(t('success'));
+
+      setTimeout(() => {
+        setIsLoggingIn(false);
+        setRegisterStep(1);
+        // Auth state listener will handle navigation
+      }, 500);
+    } catch (error) {
+      setIsLoggingIn(false);
+      Alert.alert(t('error'), error.message);
+    }
   };
 
   // Handle login with animation
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!email || !password) {
       Alert.alert(t('error'), t('errorAllFields'));
       return;
@@ -542,53 +614,53 @@ const TennisTrackerApp = () => {
     setLoadingProgress(0);
     setLoadingText(t('loggingIn'));
 
-    let progress = 0;
-    const totalDuration = 1200;
-    const intervalTime = 30;
-    const increment = 100 / (totalDuration / intervalTime);
+    try {
+      // Simulate progress animation
+      let progress = 0;
+      const interval = setInterval(() => {
+        progress += 5;
+        setLoadingProgress(Math.min(progress, 90));
+      }, 30);
 
-    const interval = setInterval(() => {
-      progress += increment;
-      if (progress >= 100) {
-        progress = 100;
-        clearInterval(interval);
-        setLoadingProgress(100);
-        setLoadingText(t('success'));
+      // Sign in with Firebase
+      await signInWithEmailAndPassword(auth, email, password);
 
-        setTimeout(() => {
-          // Mock user with profile data
-          setUser({
-            email,
-            uid: 'mock-uid',
-            firstName: 'Tennis',
-            lastName: 'Player',
-            age: 30,
-            mainHand: 'right',
-            racket: 'Wilson Pro Staff 97',
-          });
-          setCurrentScreen('home');
-          setIsLoggingIn(false);
-          loadMatches();
-        }, 500);
-      } else {
-        setLoadingProgress(Math.floor(progress));
-      }
-    }, intervalTime);
+      clearInterval(interval);
+      setLoadingProgress(100);
+      setLoadingText(t('success'));
+
+      setTimeout(() => {
+        setIsLoggingIn(false);
+      }, 500);
+    } catch (error) {
+      setIsLoggingIn(false);
+      Alert.alert(t('error'), error.message);
+    }
   };
 
-  // Mock data loading
-  const loadMatches = () => {
-    const mockMatches = [
-      { id: '1', opponent: 'John Smith', myScore: '6-4', matchFormat: 'one-set', date: '2026-02-01', courtType: 'hard', location: 'Central Park Courts', result: 'win' },
-      { id: '2', opponent: 'Mike Johnson', myScore: '4-6, 6-7', matchFormat: 'two-sets', date: '2026-02-02', courtType: 'clay', location: 'Riverside Tennis Club', result: 'loss' },
-      { id: '3', opponent: 'John Smith', myScore: '6-3, 7-5', matchFormat: 'two-sets', date: '2026-02-03', courtType: 'hard', location: 'Central Park Courts', result: 'win' },
-      { id: '4', opponent: 'Sarah Williams', myScore: '7-5', matchFormat: 'one-set', date: '2026-02-04', courtType: 'clay', location: '', result: 'win' },
-      { id: '5', opponent: 'Mike Johnson', myScore: '6-7, 6-4, 10-8', matchFormat: 'three-sets', date: '2026-02-05', courtType: 'hard', location: 'Downtown Sports Complex', result: 'win' },
-    ];
-    setMatches(mockMatches);
+  // Load matches from Firestore
+  const loadMatches = async (userId) => {
+    try {
+      const matchesRef = collection(db, 'matches');
+      const q = query(
+        matchesRef,
+        where('userId', '==', userId),
+        orderBy('date', 'desc')
+      );
+
+      const querySnapshot = await getDocs(q);
+      const loadedMatches = [];
+      querySnapshot.forEach((doc) => {
+        loadedMatches.push({ id: doc.id, ...doc.data() });
+      });
+
+      setMatches(loadedMatches);
+    } catch (error) {
+      console.error('Error loading matches:', error);
+    }
   };
 
-  const addMatch = () => {
+  const addMatch = async () => {
     // Validate opponent name first
     if (!opponentName.trim()) {
       Alert.alert(t('error'), t('errorOpponentName'));
@@ -624,7 +696,6 @@ const TennisTrackerApp = () => {
     const result = calculateResult();
 
     const newMatch = {
-      id: Date.now().toString(),
       opponent: opponentName.trim(),
       myScore: scoreString,
       matchFormat,
@@ -634,39 +705,57 @@ const TennisTrackerApp = () => {
       result,
     };
 
-    setMatches([newMatch, ...matches]);
+    try {
+      // Add to Firestore
+      const docRef = await addDoc(collection(db, 'matches'), {
+        ...newMatch,
+        userId: user.uid,
+        createdAt: new Date().toISOString()
+      });
 
-    // Track user-added matches for string notification
-    const newCount = userAddedMatchCount + 1;
-    setUserAddedMatchCount(newCount);
+      // Update local state with Firestore ID
+      const matchWithId = { ...newMatch, id: docRef.id };
+      setMatches([matchWithId, ...matches]);
 
-    // Reset form
-    setOpponentName('');
-    setMatchFormat('one-set');
-    setSet1MyScore('');
-    setSet1OppScore('');
-    setSet2MyScore('');
-    setSet2OppScore('');
-    setSet3MyScore('');
-    setSet3OppScore('');
-    setCourtType('hard');
-    setLocation('');
-    setMatchDate(new Date());
-    setScoreErrors({});
-    setShowAddMatch(false);
+      // Update user's match count in Firestore
+      const newCount = userAddedMatchCount + 1;
+      setUserAddedMatchCount(newCount);
+      await updateDoc(doc(db, 'users', user.uid), {
+        userAddedMatchCount: newCount,
+        stringNotificationShown: newCount === 4 ? false : stringNotificationShown
+      });
 
-    // Show auto-dismissing success toast
-    setSuccessMessage(result === 'win' ? t('matchAddedWin') : t('matchAddedLoss'));
-    setShowSuccessToast(true);
-    setTimeout(() => {
-      setShowSuccessToast(false);
+      // Reset form
+      setOpponentName('');
+      setMatchFormat('one-set');
+      setSet1MyScore('');
+      setSet1OppScore('');
+      setSet2MyScore('');
+      setSet2OppScore('');
+      setSet3MyScore('');
+      setSet3OppScore('');
+      setCourtType('hard');
+      setLocation('');
+      setMatchDate(new Date());
+      setScoreErrors({});
+      setShowAddMatch(false);
 
-      // Show string notification after 4 matches (only once)
-      if (newCount === 4 && !stringNotificationShown) {
-        setShowStringNotification(true);
-        setStringNotificationShown(true);
-      }
-    }, 2000);
+      // Show auto-dismissing success toast
+      setSuccessMessage(result === 'win' ? t('matchAddedWin') : t('matchAddedLoss'));
+      setShowSuccessToast(true);
+      setTimeout(() => {
+        setShowSuccessToast(false);
+
+        // Show string notification after 4 matches (only once)
+        if (newCount === 4 && !stringNotificationShown) {
+          setShowStringNotification(true);
+          setStringNotificationShown(true);
+        }
+      }, 2000);
+    } catch (error) {
+      Alert.alert(t('error'), 'Failed to add match: ' + error.message);
+      return;
+    }
   };
 
   // Calculate statistics
@@ -760,21 +849,26 @@ const TennisTrackerApp = () => {
   };
 
   // Handle logout
-  const handleLogout = () => {
-    setUser(null);
-    setEmail('');
-    setPassword('');
-    setFirstName('');
-    setLastName('');
-    setAge('');
-    setMainHand('right');
-    setRacket('');
-    setMatches([]);
-    setUserAddedMatchCount(0);
-    setStringNotificationShown(false);
-    setShowSettings(false);
-    setSettingsScreen('main');
-    setCurrentScreen('login');
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      // Clear local state
+      setEmail('');
+      setPassword('');
+      setFirstName('');
+      setLastName('');
+      setAge('');
+      setMainHand('right');
+      setRacket('');
+      setMatches([]);
+      setUserAddedMatchCount(0);
+      setStringNotificationShown(false);
+      setShowSettings(false);
+      setSettingsScreen('main');
+      setLanguage('en');
+    } catch (error) {
+      Alert.alert(t('error'), error.message);
+    }
   };
 
   // Language options
@@ -784,7 +878,7 @@ const TennisTrackerApp = () => {
   ];
 
   // Update user profile
-  const updateProfile = () => {
+  const updateProfile = async () => {
     if (!firstName.trim() || !lastName.trim()) {
       Alert.alert(t('error'), t('errorFirstLastName'));
       return;
@@ -794,17 +888,76 @@ const TennisTrackerApp = () => {
       return;
     }
 
-    setUser(prev => ({
-      ...prev,
-      firstName: firstName.trim(),
-      lastName: lastName.trim(),
-      age: parseInt(age),
-      mainHand,
-      racket: racket.trim(),
-    }));
+    try {
+      const updatedData = {
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        age: parseInt(age),
+        mainHand,
+        racket: racket.trim()
+      };
 
-    Alert.alert(t('success'), t('profileUpdated'));
+      await updateDoc(doc(db, 'users', user.uid), updatedData);
+
+      setUser(prev => ({
+        ...prev,
+        ...updatedData
+      }));
+
+      Alert.alert(t('success'), t('profileUpdated'));
+      setSettingsScreen('main');
+    } catch (error) {
+      Alert.alert(t('error'), error.message);
+    }
+  };
+
+  // Handle language change
+  const handleLanguageChange = async (newLanguage) => {
+    setLanguage(newLanguage);
+    if (user) {
+      try {
+        await updateDoc(doc(db, 'users', user.uid), { language: newLanguage });
+      } catch (error) {
+        console.error('Error saving language:', error);
+      }
+    }
     setSettingsScreen('main');
+  };
+
+  // Handle notification toggle
+  const handleNotificationToggle = async (value) => {
+    setDailyReminderEnabled(value);
+    if (user) {
+      try {
+        await updateDoc(doc(db, 'users', user.uid), { dailyReminderEnabled: value });
+      } catch (error) {
+        console.error('Error saving notification setting:', error);
+      }
+    }
+  };
+
+  // Handle reminder hour change
+  const handleReminderHourChange = async (newHour) => {
+    setReminderHour(newHour);
+    if (user && dailyReminderEnabled) {
+      try {
+        await updateDoc(doc(db, 'users', user.uid), { reminderHour: newHour });
+      } catch (error) {
+        console.error('Error saving reminder hour:', error);
+      }
+    }
+  };
+
+  // Handle reminder minute change
+  const handleReminderMinuteChange = async (newMinute) => {
+    setReminderMinute(newMinute);
+    if (user && dailyReminderEnabled) {
+      try {
+        await updateDoc(doc(db, 'users', user.uid), { reminderMinute: newMinute });
+      } catch (error) {
+        console.error('Error saving reminder minute:', error);
+      }
+    }
   };
 
   // Format time for display
@@ -1175,7 +1328,7 @@ const TennisTrackerApp = () => {
                 </View>
                 <Switch
                   value={dailyReminderEnabled}
-                  onValueChange={setDailyReminderEnabled}
+                  onValueChange={handleNotificationToggle}
                   trackColor={{ false: '#e0e0e0', true: '#a5d6a7' }}
                   thumbColor={dailyReminderEnabled ? '#2e7d32' : '#999'}
                 />
@@ -1190,14 +1343,14 @@ const TennisTrackerApp = () => {
                       <View style={styles.timeSelector}>
                         <TouchableOpacity
                           style={styles.timeArrowButton}
-                          onPress={() => setReminderHour(reminderHour < 23 ? reminderHour + 1 : 0)}
+                          onPress={() => handleReminderHourChange(reminderHour < 23 ? reminderHour + 1 : 0)}
                         >
                           <Text style={styles.timeArrowText}>▲</Text>
                         </TouchableOpacity>
                         <Text style={styles.timeValue}>{reminderHour.toString().padStart(2, '0')}</Text>
                         <TouchableOpacity
                           style={styles.timeArrowButton}
-                          onPress={() => setReminderHour(reminderHour > 0 ? reminderHour - 1 : 23)}
+                          onPress={() => handleReminderHourChange(reminderHour > 0 ? reminderHour - 1 : 23)}
                         >
                           <Text style={styles.timeArrowText}>▼</Text>
                         </TouchableOpacity>
@@ -1211,14 +1364,14 @@ const TennisTrackerApp = () => {
                       <View style={styles.timeSelector}>
                         <TouchableOpacity
                           style={styles.timeArrowButton}
-                          onPress={() => setReminderMinute(reminderMinute < 55 ? reminderMinute + 5 : 0)}
+                          onPress={() => handleReminderMinuteChange(reminderMinute < 55 ? reminderMinute + 5 : 0)}
                         >
                           <Text style={styles.timeArrowText}>▲</Text>
                         </TouchableOpacity>
                         <Text style={styles.timeValue}>{reminderMinute.toString().padStart(2, '0')}</Text>
                         <TouchableOpacity
                           style={styles.timeArrowButton}
-                          onPress={() => setReminderMinute(reminderMinute > 0 ? reminderMinute - 5 : 55)}
+                          onPress={() => handleReminderMinuteChange(reminderMinute > 0 ? reminderMinute - 5 : 55)}
                         >
                           <Text style={styles.timeArrowText}>▼</Text>
                         </TouchableOpacity>
@@ -1242,7 +1395,7 @@ const TennisTrackerApp = () => {
             <View style={styles.languageForm}>
               <TouchableOpacity
                 style={styles.languageOption}
-                onPress={() => setLanguage('en')}
+                onPress={() => handleLanguageChange('en')}
               >
                 <Text style={styles.languageFlag}>🇺🇸</Text>
                 <Text style={styles.languageName}>English</Text>
@@ -1251,7 +1404,7 @@ const TennisTrackerApp = () => {
 
               <TouchableOpacity
                 style={styles.languageOption}
-                onPress={() => setLanguage('sr')}
+                onPress={() => handleLanguageChange('sr')}
               >
                 <Text style={styles.languageFlag}>🇷🇸</Text>
                 <Text style={styles.languageName}>Srpski</Text>
