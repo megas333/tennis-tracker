@@ -95,25 +95,19 @@ Start tracking your tennis journey today!
 
 ## Support URL
 
-https://github.com/yourusername/tennis-tracker
-
-*(Update with your actual support URL)*
+https://github.com/megas333/tennis-tracker
 
 ---
 
 ## Marketing URL (Optional)
 
-https://yourusername.github.io/tennis-tracker
-
-*(Update with your actual website)*
+https://megas333.github.io/tennis-tracker
 
 ---
 
 ## Privacy Policy URL (REQUIRED)
 
-https://yourusername.github.io/tennis-tracker/privacy
-
-*(We'll create this in Part C)*
+https://megas333.github.io/tennis-tracker/PRIVACY_POLICY
 
 ---
 
