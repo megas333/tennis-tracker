@@ -32,8 +32,18 @@ import {
   updateDoc,
   onSnapshot
 } from 'firebase/firestore';
+import * as Notifications from 'expo-notifications';
 
 const APP_VERSION = '1.0.0';
+
+// Configure how notifications are handled when app is in foreground
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
 
 // Translations
 const translations = {
@@ -348,6 +358,7 @@ const TennisTrackerApp = () => {
   const [user, setUser] = useState(null);
   const [matches, setMatches] = useState([]);
   const [language, setLanguage] = useState('en');
+  const [notificationPermission, setNotificationPermission] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   // Login/Register State
@@ -459,6 +470,13 @@ const TennisTrackerApp = () => {
 
     return () => unsubscribe();
   }, []);
+
+  // Schedule notifications when settings change
+  useEffect(() => {
+    if (user && dailyReminderEnabled) {
+      scheduleDailyNotification();
+    }
+  }, [user, dailyReminderEnabled, reminderHour, reminderMinute]);
 
   // Get max score based on match format and set number
   const getMaxScore = (format, setNumber) => {
@@ -882,6 +900,55 @@ const TennisTrackerApp = () => {
     { code: 'sr', name: 'Srpski', flag: '🇷🇸' },
   ];
 
+  // Request notification permissions
+  const requestNotificationPermissions = async () => {
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+
+    if (existingStatus !== 'granted') {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+
+    setNotificationPermission(finalStatus === 'granted');
+    return finalStatus === 'granted';
+  };
+
+  // Schedule daily notification
+  const scheduleDailyNotification = async () => {
+    // Request permission first
+    const hasPermission = await requestNotificationPermissions();
+    if (!hasPermission) {
+      Alert.alert(
+        t('error'),
+        'Notification permission denied. Please enable notifications in your device settings.'
+      );
+      setDailyReminderEnabled(false);
+      return;
+    }
+
+    // Cancel all existing notifications
+    await Notifications.cancelAllScheduledNotificationsAsync();
+
+    if (dailyReminderEnabled) {
+      // Schedule notification for the set time
+      const trigger = {
+        hour: reminderHour,
+        minute: reminderMinute,
+        repeats: true,
+      };
+
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: t('appTitle'),
+          body: t('reminderMessage').replace(/"/g, ''),
+          data: { type: 'daily_reminder' },
+        },
+        trigger,
+      });
+    }
+  };
+
   // Update user profile
   const updateProfile = async () => {
     if (!firstName.trim() || !lastName.trim()) {
@@ -930,8 +997,18 @@ const TennisTrackerApp = () => {
   };
 
   // Handle notification toggle
+  // Add handler for notification toggle
   const handleNotificationToggle = async (value) => {
     setDailyReminderEnabled(value);
+
+    if (value) {
+      // Schedule notification when enabled
+      await scheduleDailyNotification();
+    } else {
+      // Cancel all notifications when disabled
+      await Notifications.cancelAllScheduledNotificationsAsync();
+    }
+
     if (user) {
       try {
         await updateDoc(doc(db, 'users', user.uid), { dailyReminderEnabled: value });
@@ -941,9 +1018,18 @@ const TennisTrackerApp = () => {
     }
   };
 
-  // Handle reminder hour change
+  // Add handlers for time changes
   const handleReminderHourChange = async (newHour) => {
     setReminderHour(newHour);
+
+    // Reschedule notification with new time
+    if (dailyReminderEnabled) {
+      // Brief delay to allow state to update
+      setTimeout(async () => {
+        await scheduleDailyNotification();
+      }, 100);
+    }
+
     if (user && dailyReminderEnabled) {
       try {
         await updateDoc(doc(db, 'users', user.uid), { reminderHour: newHour });
@@ -953,9 +1039,17 @@ const TennisTrackerApp = () => {
     }
   };
 
-  // Handle reminder minute change
   const handleReminderMinuteChange = async (newMinute) => {
     setReminderMinute(newMinute);
+
+    // Reschedule notification with new time
+    if (dailyReminderEnabled) {
+      // Brief delay to allow state to update
+      setTimeout(async () => {
+        await scheduleDailyNotification();
+      }, 100);
+    }
+
     if (user && dailyReminderEnabled) {
       try {
         await updateDoc(doc(db, 'users', user.uid), { reminderMinute: newMinute });
