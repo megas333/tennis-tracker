@@ -28,7 +28,6 @@ import {
   addDoc,
   query,
   where,
-  orderBy,
   getDocs,
   updateDoc,
   onSnapshot
@@ -647,8 +646,7 @@ const TennisTrackerApp = () => {
       const matchesRef = collection(db, 'matches');
       const q = query(
         matchesRef,
-        where('userId', '==', userId),
-        orderBy('date', 'desc')
+        where('userId', '==', userId)
       );
 
       const querySnapshot = await getDocs(q);
@@ -657,9 +655,13 @@ const TennisTrackerApp = () => {
         loadedMatches.push({ id: doc.id, ...doc.data() });
       });
 
+      // Sort by date in JavaScript (descending - newest first)
+      loadedMatches.sort((a, b) => new Date(b.date) - new Date(a.date));
+
       setMatches(loadedMatches);
     } catch (error) {
       console.error('Error loading matches:', error);
+      Alert.alert('Error', 'Failed to load matches: ' + error.message);
     }
   };
 
