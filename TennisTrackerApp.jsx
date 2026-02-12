@@ -349,6 +349,7 @@ const TennisTrackerApp = () => {
   const [user, setUser] = useState(null);
   const [matches, setMatches] = useState([]);
   const [language, setLanguage] = useState('en');
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   // Login/Register State
   const [email, setEmail] = useState('');
@@ -447,11 +448,13 @@ const TennisTrackerApp = () => {
           setCurrentScreen('home');
           loadMatches(firebaseUser.uid);
         }
+        setIsCheckingAuth(false);
       } else {
         // User is signed out
         setUser(null);
         setMatches([]);
         setCurrentScreen('login');
+        setIsCheckingAuth(false);
       }
     });
 
@@ -967,6 +970,17 @@ const TennisTrackerApp = () => {
     const displayMinute = minute.toString().padStart(2, '0');
     return `${displayHour}:${displayMinute} ${period}`;
   };
+
+  // Auth Check Loading Screen
+  if (isCheckingAuth) {
+    return (
+      <SafeAreaView style={styles.loadingContainer}>
+        <View style={styles.loadingContent}>
+          <Text style={styles.loadingEmoji}>🎾</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   // Loading Screen
   if (isLoggingIn) {
