@@ -17,6 +17,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.nikolastankovic.tennistracker",
+      "buildNumber": "2",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
