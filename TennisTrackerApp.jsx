@@ -18,7 +18,8 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   onAuthStateChanged,
-  signOut
+  signOut,
+  deleteUser
 } from 'firebase/auth';
 import {
   doc,
@@ -30,7 +31,8 @@ import {
   where,
   getDocs,
   updateDoc,
-  onSnapshot
+  onSnapshot,
+  deleteDoc
 } from 'firebase/firestore';
 import * as Notifications from 'expo-notifications';
 
@@ -894,6 +896,79 @@ const TennisTrackerApp = () => {
     }
   };
 
+  const handleDeleteAccount = async () => {
+    // Show confirmation dialog
+    Alert.alert(
+      language === 'en' ? 'Delete Account' : 'Obriši Nalog',
+      language === 'en'
+        ? 'Are you sure you want to delete your account? This action cannot be undone. All your matches and data will be permanently deleted.'
+        : 'Da li ste sigurni da želite da obrišete vaš nalog? Ova akcija se ne može poništiti. Svi vaši mečevi i podaci će biti trajno obrisani.',
+      [
+        {
+          text: language === 'en' ? 'Cancel' : 'Otkaži',
+          style: 'cancel'
+        },
+        {
+          text: language === 'en' ? 'Delete' : 'Obriši',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const currentUser = auth.currentUser;
+              if (!currentUser) return;
+
+              // Delete all user's matches
+              const matchesRef = collection(db, 'matches');
+              const q = query(matchesRef, where('userId', '==', currentUser.uid));
+              const querySnapshot = await getDocs(q);
+
+              // Delete each match
+              for (const docSnapshot of querySnapshot.docs) {
+                await deleteDoc(doc(db, 'matches', docSnapshot.id));
+              }
+
+              // Delete user document
+              await deleteDoc(doc(db, 'users', currentUser.uid));
+
+              // Delete Firebase Auth account
+              await deleteUser(currentUser);
+
+              // Clear local state
+              setEmail('');
+              setPassword('');
+              setFirstName('');
+              setLastName('');
+              setAge('');
+              setMainHand('right');
+              setRacket('');
+              setMatches([]);
+              setUserAddedMatchCount(0);
+              setStringNotificationShown(false);
+              setShowSettings(false);
+              setSettingsScreen('main');
+              setLanguage('en');
+              setCurrentScreen('login');
+
+              Alert.alert(
+                language === 'en' ? 'Account Deleted' : 'Nalog Obrisan',
+                language === 'en'
+                  ? 'Your account and all data have been permanently deleted.'
+                  : 'Vaš nalog i svi podaci su trajno obrisani.'
+              );
+            } catch (error) {
+              console.error('Error deleting account:', error);
+              Alert.alert(
+                language === 'en' ? 'Error' : 'Greška',
+                language === 'en'
+                  ? 'Failed to delete account. Please try again or contact support.'
+                  : 'Neuspešno brisanje naloga. Pokušajte ponovo ili kontaktirajte podršku.'
+              );
+            }
+          }
+        }
+      ]
+    );
+  };
+
   // Language options
   const languageOptions = [
     { code: 'en', name: 'English', flag: '🇬🇧' },
@@ -1352,6 +1427,15 @@ const TennisTrackerApp = () => {
                 onPress={handleLogout}
               >
                 <Text style={styles.logoutButtonText}>{t('logout')}</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.deleteAccountButton}
+                onPress={handleDeleteAccount}
+              >
+                <Text style={styles.deleteAccountButtonText}>
+                  {language === 'en' ? 'Delete Account' : 'Obriši Nalog'}
+                </Text>
               </TouchableOpacity>
             </>
           )}
@@ -2449,6 +2533,20 @@ const styles = StyleSheet.create({
     color: '#d32f2f',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  deleteAccountButton: {
+    backgroundColor: '#fff',
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginTop: 10,
+    borderWidth: 1,
+    borderColor: '#d32f2f',
+  },
+  deleteAccountButtonText: {
+    color: '#d32f2f',
+    fontSize: 14,
+    fontWeight: '600',
   },
   profileForm: {
     backgroundColor: '#fff',
