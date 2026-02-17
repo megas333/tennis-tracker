@@ -1224,14 +1224,10 @@ const TennisTrackerApp = () => {
   };
 
   // Handle notification toggle
-  // Add handler for notification toggle
   const handleNotificationToggle = async (value) => {
     setDailyReminderEnabled(value);
 
-    if (value) {
-      // Schedule notification when enabled
-      await scheduleDailyNotification();
-    } else {
+    if (!value) {
       // Cancel all notifications when disabled
       await Notifications.cancelAllScheduledNotificationsAsync();
     }
@@ -1245,17 +1241,9 @@ const TennisTrackerApp = () => {
     }
   };
 
-  // Add handlers for time changes
+  // Handlers for time changes - useEffect handles rescheduling
   const handleReminderHourChange = async (newHour) => {
     setReminderHour(newHour);
-
-    // Reschedule notification with new time
-    if (dailyReminderEnabled) {
-      // Brief delay to allow state to update
-      setTimeout(async () => {
-        await scheduleDailyNotification();
-      }, 100);
-    }
 
     if (user && dailyReminderEnabled) {
       try {
@@ -1268,14 +1256,6 @@ const TennisTrackerApp = () => {
 
   const handleReminderMinuteChange = async (newMinute) => {
     setReminderMinute(newMinute);
-
-    // Reschedule notification with new time
-    if (dailyReminderEnabled) {
-      // Brief delay to allow state to update
-      setTimeout(async () => {
-        await scheduleDailyNotification();
-      }, 100);
-    }
 
     if (user && dailyReminderEnabled) {
       try {
