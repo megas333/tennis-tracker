@@ -169,6 +169,15 @@ const translations = {
     done: 'Done',
     cancel: 'Cancel',
 
+    notes: 'Notes',
+    notesPlaceholder: 'Any notes about the match, opponent, or tips...',
+    editMatch: 'Edit Match',
+    saveMatch: 'Save Match',
+    deleteMatch: 'Delete Match',
+    deleteMatchConfirm: 'Are you sure you want to delete this match record? This action cannot be undone.',
+    matchDeleted: 'Match deleted successfully',
+    matchUpdated: 'Match updated successfully',
+
     // Alerts
     error: 'Error',
     errorEmailPassword: 'Please fill in email and password',
@@ -321,6 +330,15 @@ const translations = {
     done: 'Gotovo',
     cancel: 'Otkaži',
 
+    notes: 'Beleške',
+    notesPlaceholder: 'Beleške o meču, protivniku ili saveti...',
+    editMatch: 'Izmeni meč',
+    saveMatch: 'Sačuvaj meč',
+    deleteMatch: 'Obriši meč',
+    deleteMatchConfirm: 'Da li ste sigurni da želite da obrišete ovaj meč? Ova akcija se ne može poništiti.',
+    matchDeleted: 'Meč uspešno obrisan',
+    matchUpdated: 'Meč uspešno ažuriran',
+
     // Alerts
     error: 'Greška',
     errorEmailPassword: 'Molimo unesite email i lozinku',
@@ -408,8 +426,10 @@ const TennisTrackerApp = () => {
   const [set3OppScore, setSet3OppScore] = useState('');
   const [courtType, setCourtType] = useState('hard');
   const [location, setLocation] = useState('');
+  const [notes, setNotes] = useState('');
   const [matchDate, setMatchDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [editingMatch, setEditingMatch] = useState(null);
 
   // Score validation errors
   const [scoreErrors, setScoreErrors] = useState({});
@@ -727,6 +747,7 @@ const TennisTrackerApp = () => {
       date: matchDate.toISOString().split('T')[0],
       courtType,
       location: location.trim(),
+      notes: notes.trim(),
       result,
     };
 
@@ -761,6 +782,7 @@ const TennisTrackerApp = () => {
       setSet3OppScore('');
       setCourtType('hard');
       setLocation('');
+      setNotes('');
       setMatchDate(new Date());
       setScoreErrors({});
       setShowAddMatch(false);
@@ -967,6 +989,136 @@ const TennisTrackerApp = () => {
         }
       ]
     );
+  };
+
+  const handleDeleteMatch = (match) => {
+    Alert.alert(
+      t('deleteMatch'),
+      t('deleteMatchConfirm'),
+      [
+        { text: t('cancel'), style: 'cancel' },
+        {
+          text: t('deleteMatch'),
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteDoc(doc(db, 'matches', match.id));
+              setMatches(matches.filter(m => m.id !== match.id));
+
+              const newCount = Math.max(0, userAddedMatchCount - 1);
+              setUserAddedMatchCount(newCount);
+              await updateDoc(doc(db, 'users', user.uid), {
+                userAddedMatchCount: newCount,
+              });
+            } catch (error) {
+              Alert.alert(t('error'), error.message);
+            }
+          }
+        }
+      ]
+    );
+  };
+
+  const openEditMatch = (match) => {
+    setEditingMatch(match);
+    setOpponentName(match.opponent);
+    setCourtType(match.courtType || 'hard');
+    setLocation(match.location || '');
+    setNotes(match.notes || '');
+    setMatchDate(new Date(match.date + 'T12:00:00'));
+
+    // Parse scores back into individual sets
+    const scores = match.myScore.split(', ');
+    if (scores.length >= 1) {
+      const [my1, opp1] = scores[0].split('-');
+      setSet1MyScore(my1);
+      setSet1OppScore(opp1);
+    }
+    if (scores.length >= 2) {
+      const [my2, opp2] = scores[1].split('-');
+      setSet2MyScore(my2);
+      setSet2OppScore(opp2);
+      if (scores.length === 2) setMatchFormat('two-sets');
+    } else {
+      setSet2MyScore('');
+      setSet2OppScore('');
+    }
+    if (scores.length >= 3) {
+      const [my3, opp3] = scores[2].split('-');
+      setSet3MyScore(my3);
+      setSet3OppScore(opp3);
+      setMatchFormat('three-sets');
+    } else {
+      setSet3MyScore('');
+      setSet3OppScore('');
+    }
+    if (scores.length === 1) setMatchFormat('one-set');
+
+    setShowAddMatch(true);
+  };
+
+  const saveEditedMatch = async () => {
+    if (!opponentName.trim()) {
+      Alert.alert(t('error'), t('errorOpponentName'));
+      return;
+    }
+    if (!set1MyScore || !set1OppScore) {
+      Alert.alert(t('error'), t('errorSet1Score'));
+      return;
+    }
+    if ((matchFormat === 'two-sets' || matchFormat === 'three-sets') && (!set2MyScore || !set2OppScore)) {
+      Alert.alert(t('error'), t('errorSet2Score'));
+      return;
+    }
+    if (matchFormat === 'three-sets' && (!set3MyScore || !set3OppScore)) {
+      Alert.alert(t('error'), t('errorSet3Score'));
+      return;
+    }
+
+    let scoreString = `${set1MyScore}-${set1OppScore}`;
+    if (matchFormat === 'two-sets' || matchFormat === 'three-sets') {
+      scoreString += `, ${set2MyScore}-${set2OppScore}`;
+    }
+    if (matchFormat === 'three-sets') {
+      scoreString += `, ${set3MyScore}-${set3OppScore}`;
+    }
+
+    const result = calculateResult();
+
+    const updatedData = {
+      opponent: opponentName.trim(),
+      myScore: scoreString,
+      matchFormat,
+      date: matchDate.toISOString().split('T')[0],
+      courtType,
+      location: location.trim(),
+      notes: notes.trim(),
+      result,
+    };
+
+    try {
+      await updateDoc(doc(db, 'matches', editingMatch.id), updatedData);
+      setMatches(matches.map(m => m.id === editingMatch.id ? { ...m, ...updatedData } : m));
+
+      // Reset form
+      setOpponentName('');
+      setMatchFormat('one-set');
+      setSet1MyScore('');
+      setSet1OppScore('');
+      setSet2MyScore('');
+      setSet2OppScore('');
+      setSet3MyScore('');
+      setSet3OppScore('');
+      setCourtType('hard');
+      setLocation('');
+      setNotes('');
+      setMatchDate(new Date());
+      setScoreErrors({});
+      setEditingMatch(null);
+      setShowAddMatch(false);
+    } catch (error) {
+      Alert.alert(t('error'), error.message);
+    }
   };
 
   // Language options
@@ -1827,6 +1979,23 @@ const TennisTrackerApp = () => {
                 {match.location && (
                   <Text style={styles.historyLocation}>📍 {match.location}</Text>
                 )}
+                {match.notes && (
+                  <Text style={styles.historyNotes}>📝 {match.notes}</Text>
+                )}
+                <View style={styles.historyActions}>
+                  <TouchableOpacity
+                    style={styles.editButton}
+                    onPress={() => openEditMatch(match)}
+                  >
+                    <Text style={styles.editButtonText}>{t('editMatch')}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.deleteButton}
+                    onPress={() => handleDeleteMatch(match)}
+                  >
+                    <Text style={styles.deleteButtonText}>{t('deleteMatch')}</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             ))}
           </View>
@@ -1839,7 +2008,7 @@ const TennisTrackerApp = () => {
       {/* Floating Add Button - Larger */}
       <TouchableOpacity
         style={styles.fab}
-        onPress={() => setShowAddMatch(true)}
+        onPress={() => { setEditingMatch(null); setShowAddMatch(true); }}
       >
         <Text style={styles.fabText}>+</Text>
       </TouchableOpacity>
@@ -1982,7 +2151,7 @@ const TennisTrackerApp = () => {
                 </>
               ) : (
               <>
-              <Text style={styles.modalTitle}>{t('addMatch')}</Text>
+              <Text style={styles.modalTitle}>{editingMatch ? t('editMatch') : t('addMatch')}</Text>
 
               <TextInput
                 style={styles.input}
@@ -2236,11 +2405,23 @@ const TennisTrackerApp = () => {
                 blurOnSubmit={true}
               />
 
+              <Text style={styles.label}>{t('notes')}</Text>
+              <TextInput
+                style={[styles.input, { height: 80, textAlignVertical: 'top' }]}
+                placeholder={t('notesPlaceholder')}
+                value={notes}
+                onChangeText={setNotes}
+                multiline={true}
+                numberOfLines={3}
+                returnKeyType="default"
+              />
+
               <View style={styles.modalButtons}>
                 <TouchableOpacity
                   style={[styles.button, styles.cancelButton]}
                   onPress={() => {
                     setShowAddMatch(false);
+                    setEditingMatch(null);
                     setScoreErrors({});
                   }}
                 >
@@ -2249,9 +2430,9 @@ const TennisTrackerApp = () => {
 
                 <TouchableOpacity
                   style={[styles.button, styles.addButton]}
-                  onPress={addMatch}
+                  onPress={editingMatch ? saveEditedMatch : addMatch}
                 >
-                  <Text style={styles.addButtonText}>{t('addMatch')}</Text>
+                  <Text style={styles.addButtonText}>{editingMatch ? t('saveMatch') : t('addMatch')}</Text>
                 </TouchableOpacity>
               </View>
               </>
@@ -2858,6 +3039,40 @@ const styles = StyleSheet.create({
     color: '#666',
     marginTop: 8,
     fontStyle: 'italic',
+  },
+  historyNotes: {
+    fontSize: 13,
+    color: '#555',
+    marginTop: 6,
+    fontStyle: 'italic',
+  },
+  historyActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: 10,
+    gap: 10,
+  },
+  editButton: {
+    paddingVertical: 6,
+    paddingHorizontal: 14,
+    borderRadius: 8,
+    backgroundColor: '#e8f5e9',
+  },
+  editButtonText: {
+    color: '#2e7d32',
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  deleteButton: {
+    paddingVertical: 6,
+    paddingHorizontal: 14,
+    borderRadius: 8,
+    backgroundColor: '#ffebee',
+  },
+  deleteButtonText: {
+    color: '#d32f2f',
+    fontSize: 13,
+    fontWeight: '600',
   },
   // Larger FAB
   fab: {
