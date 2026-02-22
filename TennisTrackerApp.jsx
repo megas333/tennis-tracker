@@ -451,6 +451,14 @@ const TennisTrackerApp = () => {
   // Translation helper
   const t = (key) => translations[language][key] || key;
 
+  // Format date as YYYY-MM-DD using local timezone (avoids UTC shift)
+  const formatDateLocal = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   // Listen for auth state changes
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -698,8 +706,11 @@ const TennisTrackerApp = () => {
         loadedMatches.push({ id: doc.id, ...doc.data() });
       });
 
-      // Sort by date in JavaScript (descending - newest first)
-      loadedMatches.sort((a, b) => new Date(b.date) - new Date(a.date));
+      // Sort by creation time (newest first), fall back to date
+      loadedMatches.sort((a, b) => {
+        if (a.createdAt && b.createdAt) return new Date(b.createdAt) - new Date(a.createdAt);
+        return new Date(b.date) - new Date(a.date);
+      });
 
       setMatches(loadedMatches);
     } catch (error) {
@@ -747,7 +758,7 @@ const TennisTrackerApp = () => {
       opponent: opponentName.trim(),
       myScore: scoreString,
       matchFormat,
-      date: matchDate.toISOString().split('T')[0],
+      date: formatDateLocal(matchDate),
       courtType,
       location: location.trim(),
       notes: notes.trim(),
@@ -1092,7 +1103,7 @@ const TennisTrackerApp = () => {
       opponent: opponentName.trim(),
       myScore: scoreString,
       matchFormat,
-      date: matchDate.toISOString().split('T')[0],
+      date: formatDateLocal(matchDate),
       courtType,
       location: location.trim(),
       notes: notes.trim(),
