@@ -128,6 +128,23 @@ const translations = {
     featureProfile: 'Player Profile',
     featureProfileDesc: 'Store your name, age, main hand, and racket info',
 
+    // v1.0.1
+    whatsNewVersion: "What's New in 1.0.1",
+    newFeatures: 'New Features',
+    featureNotes: 'Match Notes',
+    featureNotesDesc: 'Add notes about the match, opponent, or tips',
+    featureEditMatch: 'Edit Matches',
+    featureEditMatchDesc: 'Edit any recorded match from the history screen',
+    featureDeleteMatch: 'Delete Matches',
+    featureDeleteMatchDesc: 'Remove match records you no longer need',
+    featureDeleteAccount: 'Account Deletion',
+    featureDeleteAccountDesc: 'Delete your account and all data from Settings',
+    bugFixes: 'Bug Fixes',
+    bugFixNotifications: 'Fixed duplicate notification scheduling',
+    bugFixKeyboard: 'Fixed keyboard covering input fields',
+    bugFixSorting: 'Matches now sorted by entry time',
+    bugFixDates: 'Fixed date timezone issue',
+
     // Stats
     overallPerformance: 'Overall Performance in 2026',
     wins: 'Wins',
@@ -288,6 +305,23 @@ const translations = {
     featureStringsDesc: 'Dobijte obaveštenje posle 4 meča da proverite zatezanje žica',
     featureProfile: 'Profil igrača',
     featureProfileDesc: 'Sačuvajte ime, godine, dominantnu ruku i informacije o reketu',
+
+    // v1.0.1
+    whatsNewVersion: 'Šta je novo u 1.0.1',
+    newFeatures: 'Nove mogućnosti',
+    featureNotes: 'Beleške o meču',
+    featureNotesDesc: 'Dodajte beleške o meču, protivniku ili savete',
+    featureEditMatch: 'Izmena mečeva',
+    featureEditMatchDesc: 'Izmenite bilo koji zabeleženi meč iz istorije',
+    featureDeleteMatch: 'Brisanje mečeva',
+    featureDeleteMatchDesc: 'Obrišite mečeve koji vam više nisu potrebni',
+    featureDeleteAccount: 'Brisanje naloga',
+    featureDeleteAccountDesc: 'Obrišite nalog i sve podatke iz Podešavanja',
+    bugFixes: 'Ispravke grešaka',
+    bugFixNotifications: 'Ispravljeno dupliranje obaveštenja',
+    bugFixKeyboard: 'Ispravljeno prekrivanje polja tastaturom',
+    bugFixSorting: 'Mečevi sada sortirani po vremenu unosa',
+    bugFixDates: 'Ispravljen problem sa vremenskom zonom datuma',
 
     // Stats
     overallPerformance: 'Ukupne performanse u 2026',
@@ -1761,6 +1795,45 @@ const TennisTrackerApp = () => {
                 <Text style={styles.versionDate}>February 2026</Text>
               </View>
 
+              <Text style={styles.versionSectionTitle}>{t('whatsNewVersion')}</Text>
+
+              <Text style={styles.changelogSubtitle}>{t('newFeatures')}</Text>
+              <View style={styles.featureItem}>
+                <Text style={styles.featureIcon}>📝</Text>
+                <View style={styles.featureContent}>
+                  <Text style={styles.featureTitle}>{t('featureNotes')}</Text>
+                  <Text style={styles.featureDescription}>{t('featureNotesDesc')}</Text>
+                </View>
+              </View>
+              <View style={styles.featureItem}>
+                <Text style={styles.featureIcon}>✏️</Text>
+                <View style={styles.featureContent}>
+                  <Text style={styles.featureTitle}>{t('featureEditMatch')}</Text>
+                  <Text style={styles.featureDescription}>{t('featureEditMatchDesc')}</Text>
+                </View>
+              </View>
+              <View style={styles.featureItem}>
+                <Text style={styles.featureIcon}>🗑️</Text>
+                <View style={styles.featureContent}>
+                  <Text style={styles.featureTitle}>{t('featureDeleteMatch')}</Text>
+                  <Text style={styles.featureDescription}>{t('featureDeleteMatchDesc')}</Text>
+                </View>
+              </View>
+              <View style={styles.featureItem}>
+                <Text style={styles.featureIcon}>🔒</Text>
+                <View style={styles.featureContent}>
+                  <Text style={styles.featureTitle}>{t('featureDeleteAccount')}</Text>
+                  <Text style={styles.featureDescription}>{t('featureDeleteAccountDesc')}</Text>
+                </View>
+              </View>
+
+              <Text style={styles.changelogSubtitle}>{t('bugFixes')}</Text>
+              <Text style={styles.bugFixItem}>{t('bugFixNotifications')}</Text>
+              <Text style={styles.bugFixItem}>{t('bugFixKeyboard')}</Text>
+              <Text style={styles.bugFixItem}>{t('bugFixSorting')}</Text>
+              <Text style={styles.bugFixItem}>{t('bugFixDates')}</Text>
+
+              <View style={{ height: 20 }} />
               <Text style={styles.versionSectionTitle}>{t('features')}</Text>
 
               <View style={styles.featureItem}>
@@ -3414,6 +3487,20 @@ const styles = StyleSheet.create({
   featureDescription: {
     fontSize: 14,
     color: '#666',
+    lineHeight: 20,
+  },
+  changelogSubtitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#2e7d32',
+    marginTop: 12,
+    marginBottom: 8,
+  },
+  bugFixItem: {
+    fontSize: 14,
+    color: '#555',
+    paddingLeft: 12,
+    paddingVertical: 3,
     lineHeight: 20,
   },
 });
