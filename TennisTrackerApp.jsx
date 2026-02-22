@@ -441,6 +441,7 @@ const TennisTrackerApp = () => {
   const [successMessage, setSuccessMessage] = useState('');
 
   // Refs for auto-focus between score inputs
+  const modalScrollRef = useRef(null);
   const set1OppRef = useRef(null);
   const set2MyRef = useRef(null);
   const set2OppRef = useRef(null);
@@ -2006,6 +2007,7 @@ const TennisTrackerApp = () => {
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
           <ScrollView
+            ref={modalScrollRef}
             contentContainerStyle={styles.modalScrollContent}
             keyboardShouldPersistTaps='handled'
           >
@@ -2388,6 +2390,11 @@ const TennisTrackerApp = () => {
                 onChangeText={setLocation}
                 returnKeyType="done"
                 blurOnSubmit={true}
+                onFocus={() => {
+                  setTimeout(() => {
+                    modalScrollRef.current?.scrollToEnd({ animated: true });
+                  }, 300);
+                }}
               />
 
               <Text style={styles.label}>{t('notes')}</Text>
@@ -2399,6 +2406,11 @@ const TennisTrackerApp = () => {
                 multiline={true}
                 numberOfLines={3}
                 returnKeyType="default"
+                onFocus={() => {
+                  setTimeout(() => {
+                    modalScrollRef.current?.scrollToEnd({ animated: true });
+                  }, 300);
+                }}
               />
 
               <View style={styles.modalButtons}>
