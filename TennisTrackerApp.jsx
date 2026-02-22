@@ -12,6 +12,8 @@ import {
   Animated,
   Keyboard,
   Switch,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { auth, db } from './firebaseConfig';
 import {
@@ -1999,7 +2001,10 @@ const TennisTrackerApp = () => {
         animationType="slide"
         transparent={true}
       >
-        <View style={styles.modalOverlay}>
+        <KeyboardAvoidingView
+          style={styles.modalOverlay}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
           <ScrollView
             contentContainerStyle={styles.modalScrollContent}
             keyboardShouldPersistTaps='handled'
@@ -2419,7 +2424,7 @@ const TennisTrackerApp = () => {
               )}
             </View>
           </ScrollView>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
 
       {/* String Replacement Notification Modal */}
