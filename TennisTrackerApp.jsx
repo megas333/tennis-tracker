@@ -38,7 +38,7 @@ import {
 } from 'firebase/firestore';
 import * as Notifications from 'expo-notifications';
 
-const APP_VERSION = '1.0.0';
+const APP_VERSION = '1.0.1';
 
 // Configure how notifications are handled when app is in foreground
 Notifications.setNotificationHandler({
